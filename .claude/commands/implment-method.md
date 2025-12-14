@@ -17,6 +17,7 @@ Use these files as implementation templates:
 
 - GET request pattern: @sanhe_confluence_sdk/methods/space/get_spaces.py
 - POST request pattern: @sanhe_confluence_sdk/methods/space/create_space.py
+- PUT request pattern (with path/query/body separation): @sanhe_confluence_sdk/methods/page/update_page.py
 - GET test pattern: @tests_manual/methods/space/test_methods_space_get_spaces.py
 - POST test pattern: @tests_manual/methods/space/test_methods_space_create_space.py
 - Shared Links class: @sanhe_confluence_sdk/methods/common/links.py
@@ -38,10 +39,16 @@ Use these files as implementation templates:
 
 4. **Implement Request Class**
    - Add all path parameters, query parameters, and request body fields as dataclass attributes
-   - All attributes should use `dataclasses.field(default=OPT)`
+   - Use `dataclasses.field(default=REQ)` for required parameters
+   - Use `dataclasses.field(default=OPT)` for optional parameters
+   - Use comments to separate different parameter types:
+     - `# Path parameters (required)`
+     - `# Query parameters (optional)`
+     - `# Body parameters (required)`
+     - `# Body parameters (optional)`
    - For nested objects in request body, use `dict[str, T.Any]` type (NOT nested dataclasses)
    - Implement `_path` property (include path parameters)
-   - Implement `_params` property (map snake_case attrs to API parameter names)
+   - Implement `_params` property for query parameters (even for POST/PUT/PATCH - check official docs)
    - Implement `_body` property if request has body (for POST/PATCH/PUT)
    - Implement `sync()` method using appropriate `_sync_get`, `_sync_post`, etc.
    - Add docstring with **only** the official docs URL (no parameter descriptions needed)

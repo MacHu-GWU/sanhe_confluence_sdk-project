@@ -27,7 +27,7 @@ This module defines the foundation:
 
 **BaseRequest**
 
-- All request parameters are dataclass attributes with ``default=OPT`` (optional)
+- Request parameters are dataclass attributes with ``default=REQ`` (required) or ``default=OPT`` (optional)
 - ``_path`` property returns the API endpoint path (e.g., ``/spaces``)
 - ``_params`` property maps Python attributes to API query parameter names (handles ``snake_case`` → ``kebab-case`` conversion)
 - ``_body`` property maps Python attributes to API request body fields (for POST/PUT/PATCH requests)
@@ -87,6 +87,8 @@ Each method module (e.g., ``space/get_spaces.py``) follows this structure:
 
 The docstring should contain **only** the official documentation URL - no parameter descriptions are needed since users can refer to the official docs directly.
 
+Use comments to separate different parameter types (path, query, body) and indicate whether they are required or optional. Use ``default=REQ`` for required parameters and ``default=OPT`` for optional parameters.
+
 .. code-block:: python
 
     @dataclasses.dataclass(frozen=True)
@@ -95,10 +97,11 @@ The docstring should contain **only** the official documentation URL - no parame
         See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-get
         """
 
-        # All parameters default to OPT (optional)
+        # Query parameters (all optional for this endpoint)
         ids: list[int] = dataclasses.field(default=OPT)
         keys: list[str] = dataclasses.field(default=OPT)
         limit: int = dataclasses.field(default=OPT)
+        description_format: str = dataclasses.field(default=OPT)
 
         @property
         def _path(self) -> str:
@@ -119,7 +122,11 @@ The docstring should contain **only** the official documentation URL - no parame
 
 **1b. Request Class with Body (POST/PUT/PATCH)**
 
-For requests that send a body (POST, PUT, PATCH), add the ``_body`` property. Nested objects in the request body should be passed as **plain dicts**, not as nested dataclass instances. This keeps the API simple and avoids unnecessary complexity:
+For requests that send a body (POST, PUT, PATCH), add the ``_body`` property. Note that POST/PUT/PATCH requests may also have query parameters - always check the official docs and implement ``_params`` if needed.
+
+Nested objects in the request body should be passed as **plain dicts**, not as nested dataclass instances. This keeps the API simple and avoids unnecessary complexity.
+
+Use comments to clearly separate path parameters, query parameters, and body parameters:
 
 .. code-block:: python
 
@@ -129,11 +136,15 @@ For requests that send a body (POST, PUT, PATCH), add the ``_body`` property. Ne
         See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-post
         """
 
-        # Simple fields
-        name: str = dataclasses.field(default=OPT)
-        key: str = dataclasses.field(default=OPT)
-        create_private_space: bool = dataclasses.field(default=OPT)
+        # Query parameters (optional)
+        serialize_ids_as_strings: bool = dataclasses.field(default=OPT)
 
+        # Body parameters (required)
+        name: str = dataclasses.field(default=REQ)
+        key: str = dataclasses.field(default=REQ)
+
+        # Body parameters (optional)
+        create_private_space: bool = dataclasses.field(default=OPT)
         # Nested objects use dict type, NOT nested dataclasses
         description: T.Dict[str, str] = dataclasses.field(default=OPT)
         role_assignments: T.List[T.Dict[str, T.Any]] = dataclasses.field(default=OPT)
@@ -141,6 +152,12 @@ For requests that send a body (POST, PUT, PATCH), add the ``_body`` property. Ne
         @property
         def _path(self) -> str:
             return "/spaces"
+
+        @property
+        def _params(self):
+            return {
+                "serialize-ids-as-strings": self.serialize_ids_as_strings,
+            }
 
         @property
         def _body(self):
@@ -414,29 +431,34 @@ When implementing a new API method:
 
 - GET request pattern: ``sanhe_confluence_sdk/methods/space/get_spaces.py``
 - POST request pattern: ``sanhe_confluence_sdk/methods/space/create_space.py``
+- PUT request pattern (with path/query/body separation): ``sanhe_confluence_sdk/methods/page/update_page.py``
 - GET test pattern: ``tests_manual/methods/space/test_methods_space_get_spaces.py``
 - POST test pattern: ``tests_manual/methods/space/test_methods_space_create_space.py``
 
 **3. Implementation Steps**
 
 1. Create module file: ``methods/{group}/{method_name}.py``
-2. Add Request class with all query/path/body parameters (all ``default=OPT``)
-3. Add docstring with **only** the official docs URL (no parameter descriptions)
-4. Implement ``_path`` property
-5. Implement ``_params`` property for query parameters (GET/POST/etc.)
-6. Implement ``_body`` property for request body (POST/PUT/PATCH only)
-7. Implement ``sync()`` method using ``_sync_get``, ``_sync_post``, etc.
-8. Add Response classes (deepest nested first)
-9. Use ``_get`` for primitives, ``_new`` for objects, ``_new_many`` for arrays
-10. For paginated list endpoints, import ``Links`` from ``..common.links`` for top-level ``_links``
-11. Create test file: ``tests_manual/methods/{group}/test_methods_{group}_{method_name}.py``
-12. For GET requests: run test, comment out properties where parent is ``None``
-13. For POST/PATCH/DELETE: comment out ALL test code, keep only ``pass``
+2. Add Request class with path/query/body parameters, using ``default=REQ`` for required and ``default=OPT`` for optional
+3. Use comments to separate path parameters, query parameters, and body parameters
+4. Add docstring with **only** the official docs URL (no parameter descriptions)
+5. Implement ``_path`` property
+6. Implement ``_params`` property for query parameters (even for POST/PUT/PATCH if the API has them)
+7. Implement ``_body`` property for request body (POST/PUT/PATCH only)
+8. Implement ``sync()`` method using ``_sync_get``, ``_sync_post``, etc.
+9. Add Response classes (deepest nested first)
+10. Use ``_get`` for primitives, ``_new`` for objects, ``_new_many`` for arrays
+11. For paginated list endpoints, import ``Links`` from ``..common.links`` for top-level ``_links``
+12. Create test file: ``tests_manual/methods/{group}/test_methods_{group}_{method_name}.py``
+13. For GET requests: run test, comment out properties where parent is ``None``
+14. For POST/PATCH/DELETE: comment out ALL test code, keep only ``pass``
 
 **4. Key Patterns to Remember**
 
 - All dataclasses use ``frozen=True`` for immutability
-- All request attributes use ``dataclasses.field(default=OPT)``
+- Required request attributes use ``dataclasses.field(default=REQ)``
+- Optional request attributes use ``dataclasses.field(default=OPT)``
+- Use comments to separate path parameters, query parameters, and body parameters in request classes
+- POST/PUT/PATCH requests may have query parameters too - always implement ``_params`` if the API supports them
 - All response properties use ``@cached_property`` for lazy loading
 - Map kebab-case API params to snake_case Python attrs in ``_params`` and ``_body``
 - In request body, use ``dict`` type for nested objects (not nested dataclasses)
@@ -457,12 +479,16 @@ Quick Reference
         See: {official_docs_url}
         """
 
+        # Path parameters (required)
+        id: int = dataclasses.field(default=REQ)
+
+        # Query parameters (optional)
         param1: str = dataclasses.field(default=OPT)
         param2: int = dataclasses.field(default=OPT)
 
         @property
         def _path(self) -> str:
-            return "/endpoint"
+            return f"/endpoint/{self.id}"
 
         @property
         def _params(self):
@@ -484,15 +510,29 @@ Quick Reference
         See: {official_docs_url}
         """
 
-        # Simple fields
-        name: str = dataclasses.field(default=OPT)
+        # Path parameters (required)
+        id: int = dataclasses.field(default=REQ)
+
+        # Query parameters (optional)
+        serialize_ids_as_strings: bool = dataclasses.field(default=OPT)
+
+        # Body parameters (required)
+        name: str = dataclasses.field(default=REQ)
+
+        # Body parameters (optional)
         # Nested objects use dict, NOT nested dataclasses
         description: T.Dict[str, str] = dataclasses.field(default=OPT)
         items: T.List[T.Dict[str, T.Any]] = dataclasses.field(default=OPT)
 
         @property
         def _path(self) -> str:
-            return "/endpoint"
+            return f"/endpoint/{self.id}"
+
+        @property
+        def _params(self):
+            return {
+                "serialize-ids-as-strings": self.serialize_ids_as_strings,
+            }
 
         @property
         def _body(self):
