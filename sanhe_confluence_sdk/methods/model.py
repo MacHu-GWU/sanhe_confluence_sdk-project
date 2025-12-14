@@ -12,6 +12,9 @@ from ..client import Confluence
 
 NA = sentinel.create(name="NA")
 
+# TypeVar for generic response class in _sync_get, _new, _new_many
+T_Response = T.TypeVar("T_Response", bound="BaseResponse")
+
 
 @dataclasses.dataclass(frozen=True)
 class BaseModel(BaseFrozenModel):
@@ -56,9 +59,9 @@ class BaseRequest(BaseModel):
 
     def _sync_get(
         self,
-        klass,
+        klass: type[T_Response],
         client: Confluence,
-    ):
+    ) -> T_Response:
         """
         Executes a synchronous GET request to the API endpoint.
         """
@@ -110,7 +113,7 @@ class BaseResponse(BaseModel):
         """
         return self._raw_data.get(field, NA)
 
-    def _new(self, klass, field: str):
+    def _new(self, klass: type[T_Response], field: str):
         """
         Creates a nested response object from a field in the raw data.
 
@@ -130,7 +133,7 @@ class BaseResponse(BaseModel):
         else:
             return klass(_raw_data=value)
 
-    def _new_many(self, klass, field: str):
+    def _new_many(self, klass: type[T_Response], field: str):
         """
         Creates a list of nested response objects from an array field.
 
