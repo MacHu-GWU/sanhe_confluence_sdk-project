@@ -57,6 +57,29 @@ class BaseRequest(BaseModel):
         params = remove_optional(**self._params)
         return params if len(params) else None
 
+    @property
+    def _body(self) -> T_KWARGS:
+        """
+        Constructs request body from request attributes.
+
+        Subclasses should override this to return attribute-to-body field mappings
+        for POST/PUT/PATCH requests. The returned dict will be processed by
+        :meth:`_final_body` to remove optional/sentinel values before sending.
+        """
+        return {}
+
+    @property
+    def _final_body(self) -> T_KWARGS | None:
+        """
+        Returns processed request body ready for HTTP request.
+
+        Returns None instead of empty dict because httpx.Client.request()
+        uses None as the default for json, ensuring consistent behavior
+        when no body is needed.
+        """
+        body = remove_optional(**self._body)
+        return body if len(body) else None
+
     def _sync_get(
         self,
         klass: type[T_Response],
@@ -75,6 +98,32 @@ class BaseRequest(BaseModel):
         http_res = client.sync_client.get(
             url=url,
             params=params,
+        )
+        http_res.raise_for_status()
+        return klass(_raw_data=http_res.json(), _http_res=http_res)
+
+    def _sync_post(
+        self,
+        klass: type[T_Response],
+        client: Confluence,
+    ) -> T_Response:
+        """
+        Executes a synchronous POST request to the API endpoint.
+        """
+        url = f"{client._root_url}{self._path}"
+        params = self._final_params
+        body = self._final_body
+        # --- for debug only
+        # print("----- url")
+        # print(url)
+        # print("----- params")
+        # print(json.dumps(params, indent=4))
+        # print("----- body")
+        # print(json.dumps(body, indent=4))
+        http_res = client.sync_client.post(
+            url=url,
+            params=params,
+            json=body,
         )
         http_res.raise_for_status()
         return klass(_raw_data=http_res.json(), _http_res=http_res)
