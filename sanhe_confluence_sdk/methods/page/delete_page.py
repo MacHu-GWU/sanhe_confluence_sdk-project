@@ -44,7 +44,7 @@ class DeletePageRequest(BaseRequest):
         Returns the httpx.Response object. A successful deletion returns
         status code 204 (No Content).
         """
-        return self._sync_delete(client)
+        return self._sync_delete(DeletePageResponse, client)
 
 
 # ------------------------------------------------------------------------------

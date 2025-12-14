@@ -105,7 +105,10 @@ class BaseRequest(BaseModel):
             json=body,
         )
         http_res.raise_for_status()
-        return klass(_raw_data=http_res.json(), _http_res=http_res)
+        if http_res.status_code == 204:
+            return klass(_raw_data={}, _http_res=http_res)
+        else:
+            return klass(_raw_data=http_res.json(), _http_res=http_res)
 
     def _sync_get(
         self,
