@@ -65,7 +65,6 @@ dev = [
     "twine>=6.0.0,<7.0.0", # distribute package to PyPI
     "wheel>=0.45.0,<1.0.0", # build wheel package
     "build>=1.2.1,<2.0.0", # build source distribution
-    "rich>=13.8.1,<14.0.0", # pretty print
 ]
 
 # ------------------------------------------------------------------------------
@@ -74,6 +73,9 @@ dev = [
 test = [
     "pytest>=8.2.2,<9.0.0", # Testing framework
     "pytest-cov>=6.0.0,<7.0.0", # Coverage reporting
+    "home_secret_toml>=0.2.1,<1.0.0",
+    "rich>=13.8.1,<15.0.0", # pretty print
+    "varname>=0.15.0,<0.16.0", # get variable name for pretty print
 ]
 
 # ------------------------------------------------------------------------------
