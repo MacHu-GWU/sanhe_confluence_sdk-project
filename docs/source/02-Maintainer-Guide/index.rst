@@ -85,6 +85,8 @@ Each method module (e.g., ``space/get_spaces.py``) follows this structure:
 
 **1. Request Class (first)**
 
+The docstring should contain **only** the official documentation URL - no parameter descriptions are needed since users can refer to the official docs directly.
+
 .. code-block:: python
 
     @dataclasses.dataclass(frozen=True)
@@ -364,7 +366,7 @@ When implementing a new API method:
 
 1. Create module file: ``methods/{group}/{method_name}.py``
 2. Add Request class with all query/path/body parameters (all ``default=OPT``)
-3. Add docstring with official docs URL
+3. Add docstring with **only** the official docs URL (no parameter descriptions)
 4. Implement ``_path`` property
 5. Implement ``_params`` property for query parameters (GET/POST/etc.)
 6. Implement ``_body`` property for request body (POST/PUT/PATCH only)

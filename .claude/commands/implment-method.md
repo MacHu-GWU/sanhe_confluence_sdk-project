@@ -43,7 +43,7 @@ Use these files as implementation templates:
    - Implement `_params` property (map snake_case attrs to API parameter names)
    - Implement `_body` property if request has body (for POST/PATCH/PUT)
    - Implement `sync()` method using appropriate `_sync_get`, `_sync_post`, etc.
-   - Add docstring with the official docs URL
+   - Add docstring with **only** the official docs URL (no parameter descriptions needed)
 
 5. **Implement Response Classes**
    - Define nested classes from **deepest to shallowest** (bottom-up order)
