@@ -6,7 +6,7 @@ from sanhe_confluence_sdk.tests import client, debug_prop, SPACE_ID
 
 
 def test(
-    mute
+    mute,
 ):
     # Now get the single space by ID with expanded fields
     res = GetSpaceRequest(

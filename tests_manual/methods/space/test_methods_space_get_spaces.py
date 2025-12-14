@@ -6,7 +6,7 @@ from sanhe_confluence_sdk.tests import client, debug_prop
 
 
 def test(
-    mute
+    mute,
 ):
     res = GetSpacesRequest().sync(client)
 

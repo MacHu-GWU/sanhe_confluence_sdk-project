@@ -15,7 +15,9 @@ from sanhe_confluence_sdk.methods.space.create_space import CreateSpaceRequest
 from sanhe_confluence_sdk.tests import client, debug_prop
 
 
-def test(mute):
+def test(
+    mute,
+):
     """
     Test CreateSpaceRequest API.
 

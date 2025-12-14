@@ -5,7 +5,9 @@ from sanhe_confluence_sdk.methods.page.get_pages import GetPagesRequest
 from sanhe_confluence_sdk.tests import client, debug_prop
 
 
-def test(mute):
+def test(
+    mute,
+):
     res = GetPagesRequest().sync(client)
 
     # --- GetPagesResponse level ---
