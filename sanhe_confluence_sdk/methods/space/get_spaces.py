@@ -3,11 +3,11 @@
 import dataclasses
 from functools import cached_property
 
-from func_args.api import OPT, T_KWARGS
+from func_args.api import OPT
 
 from ...client import Confluence
 
-from ..model import BaseRequest, BaseResponse, NA
+from ..model import BaseRequest, BaseResponse
 
 
 # ------------------------------------------------------------------------------
