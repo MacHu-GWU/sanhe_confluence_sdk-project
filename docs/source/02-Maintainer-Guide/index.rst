@@ -239,6 +239,39 @@ Use long names that reflect JSON path as CamelCase:
 - JSON ``_links`` field → Python ``links`` property (remove underscore for cleaner API)
 
 
+Common/Shared Classes
+------------------------------------------------------------------------------
+Some response classes are shared across multiple API methods and are defined in ``sanhe_confluence_sdk/methods/common/``:
+
+**Links Class** (``sanhe_confluence_sdk/methods/common/links.py``)
+
+For methods that return paginated results (e.g., ``GET /pages``, ``GET /spaces``), the top-level ``_links`` field uses a shared ``Links`` class:
+
+.. code-block:: python
+
+    from ..common.links import Links
+
+    @dataclasses.dataclass(frozen=True)
+    class GetPagesResponse(BaseResponse):
+        @cached_property
+        def results(self) -> list[GetPagesResponseResult]:
+            return self._new_many(GetPagesResponseResult, "results")
+
+        @cached_property
+        def links(self) -> Links:
+            return self._new(Links, "_links")
+
+The ``Links`` class provides:
+
+- ``next``: Relative URL for the next page of results (cursor pagination)
+- ``base``: Base URL of the Confluence site
+
+**When to use shared vs method-specific Links:**
+
+- **Use shared ``Links``**: For top-level pagination links in list endpoints (``GET /pages``, ``GET /spaces``, etc.)
+- **Use method-specific**: For nested ``_links`` objects within result items (e.g., ``GetPagesResponseResultLinks``)
+
+
 Type Hints Philosophy
 ------------------------------------------------------------------------------
 **Always use "happy path" types:**
@@ -268,7 +301,22 @@ Type Hints Philosophy
 
 Testing Strategy
 ------------------------------------------------------------------------------
-Tests live in ``tests_manual/`` and use real Confluence data:
+Tests live in ``tests_manual/methods/{group}/`` and use real Confluence data:
+
+**Test File Structure:**
+
+::
+
+    tests_manual/methods/
+    ├── space/
+    │   ├── all.py                                    # Run all tests in group
+    │   ├── test_methods_space_get_spaces.py          # GET /spaces
+    │   ├── test_methods_space_get_space.py           # GET /spaces/{id}
+    │   └── test_methods_space_create_space.py        # POST /spaces
+    ├── page/
+    │   ├── all.py                                    # Run all tests in group
+    │   └── test_methods_page_get_pages.py            # GET /pages
+    └── ...
 
 **Test Style:**
 
@@ -285,11 +333,13 @@ For any request that modifies data (POST, PATCH, PUT, DELETE), **ALL test code m
 - Add clear instructions for manual testing
 - Never commit uncommitted test code for write operations
 
-**Example for GET Request** (``tests_manual/test_methods_space_get_spaces.py``):
+**Example for GET Request** (``tests_manual/methods/space/test_methods_space_get_spaces.py``):
 
 .. code-block:: python
 
-    def test(mute):  # mute fixture silences debug_prop output
+    def test(
+        mute,  # mute fixture silences debug_prop output; on separate line for easy comment in/out
+    ):
         res = GetSpacesRequest().sync(client)
 
         # --- GetSpacesResponse level ---
@@ -306,7 +356,15 @@ For any request that modifies data (POST, PATCH, PUT, DELETE), **ALL test code m
         # debug_prop(result.description.plain)  # description is None
         # debug_prop(result.icon.path)  # icon is None
 
-**Example for POST/PATCH/DELETE Request** (``tests_manual/test_methods_space_create_space.py``):
+**The ``mute`` fixture:**
+
+- Place ``mute`` on its own line with a trailing comma (as shown above)
+- This formatting allows easy comment in/out to toggle debug output
+- Black formatter preserves this format (won't collapse to single line)
+- Comment out ``mute,`` to see ``debug_prop`` output when debugging
+- Keep ``mute,`` uncommented during CI/normal runs to silence output
+
+**Example for POST/PATCH/DELETE Request** (``tests_manual/methods/space/test_methods_space_create_space.py``):
 
 .. code-block:: python
 
@@ -315,7 +373,9 @@ For any request that modifies data (POST, PATCH, PUT, DELETE), **ALL test code m
     commented out to prevent accidental damage to real Confluence data.
     """
 
-    def test(mute):
+    def test(
+        mute,  # on separate line for easy comment in/out
+    ):
         """
         IMPORTANT: This test is fully commented out because it creates real data.
         To run the test:
@@ -340,11 +400,6 @@ For any request that modifies data (POST, PATCH, PUT, DELETE), **ALL test code m
         # debug_prop(res.name)
         pass  # Keep only pass statement
 
-**The ``mute`` fixture:**
-
-- Use ``mute`` in test signature to silence ``debug_prop`` output during CI
-- Remove ``mute`` when debugging to see all property values
-
 
 Development Workflow
 ------------------------------------------------------------------------------
@@ -359,8 +414,8 @@ When implementing a new API method:
 
 - GET request pattern: ``sanhe_confluence_sdk/methods/space/get_spaces.py``
 - POST request pattern: ``sanhe_confluence_sdk/methods/space/create_space.py``
-- GET test pattern: ``tests_manual/test_methods_space_get_spaces.py``
-- POST test pattern: ``tests_manual/test_methods_space_create_space.py``
+- GET test pattern: ``tests_manual/methods/space/test_methods_space_get_spaces.py``
+- POST test pattern: ``tests_manual/methods/space/test_methods_space_create_space.py``
 
 **3. Implementation Steps**
 
@@ -373,9 +428,10 @@ When implementing a new API method:
 7. Implement ``sync()`` method using ``_sync_get``, ``_sync_post``, etc.
 8. Add Response classes (deepest nested first)
 9. Use ``_get`` for primitives, ``_new`` for objects, ``_new_many`` for arrays
-10. Create test file: ``tests_manual/test_methods_{group}_{method_name}.py``
-11. For GET requests: run test, comment out properties where parent is ``None``
-12. For POST/PATCH/DELETE: comment out ALL test code, keep only ``pass``
+10. For paginated list endpoints, import ``Links`` from ``..common.links`` for top-level ``_links``
+11. Create test file: ``tests_manual/methods/{group}/test_methods_{group}_{method_name}.py``
+12. For GET requests: run test, comment out properties where parent is ``None``
+13. For POST/PATCH/DELETE: comment out ALL test code, keep only ``pass``
 
 **4. Key Patterns to Remember**
 
@@ -385,6 +441,7 @@ When implementing a new API method:
 - Map kebab-case API params to snake_case Python attrs in ``_params`` and ``_body``
 - In request body, use ``dict`` type for nested objects (not nested dataclasses)
 - Define response nested classes before parent classes (bottom-up)
+- For paginated endpoints, use shared ``Links`` class (import from ``..common.links``)
 - Comment out ALL test code for POST/PATCH/DELETE requests
 
 
@@ -470,7 +527,9 @@ Quick Reference
 
 .. code-block:: python
 
-    def test(mute):
+    def test(
+        mute,  # on separate line for easy comment in/out
+    ):
         res = {MethodName}Request().sync(client)
 
         debug_prop(res.field1)
@@ -483,7 +542,9 @@ Quick Reference
 
 .. code-block:: python
 
-    def test(mute):
+    def test(
+        mute,  # on separate line for easy comment in/out
+    ):
         """
         IMPORTANT: This test is fully commented out because it modifies real data.
         To run the test:

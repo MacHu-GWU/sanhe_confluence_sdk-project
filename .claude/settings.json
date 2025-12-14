@@ -3,10 +3,12 @@
     "allow": [
       "Write(.claude/**/*.md)",
       "Write(./**/*.rst)",
+      "Write(docs/source/**/*.rst)",
       "Write(sanhe_confluence_sdk/**/*.py)",
       "Write(tests/**/*.py)",
       "Edit(.claude/**/*.md)",
       "Edit(./**/*.rst)",
+      "Edit(docs/source/**/*.rst)",
       "Edit(sanhe_confluence_sdk/**/*.py)",
       "Edit(tests/**/*.py)",
       "Bash(~/.pyenv/shims/python bin/*.py)",

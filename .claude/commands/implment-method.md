@@ -17,8 +17,9 @@ Use these files as implementation templates:
 
 - GET request pattern: @sanhe_confluence_sdk/methods/space/get_spaces.py
 - POST request pattern: @sanhe_confluence_sdk/methods/space/create_space.py
-- GET test pattern: @tests_manual/test_methods_space_get_spaces.py
-- POST test pattern: @tests_manual/test_methods_space_create_space.py
+- GET test pattern: @tests_manual/methods/space/test_methods_space_get_spaces.py
+- POST test pattern: @tests_manual/methods/space/test_methods_space_create_space.py
+- Shared Links class: @sanhe_confluence_sdk/methods/common/links.py
 
 ## Implementation Steps
 
@@ -51,12 +52,19 @@ Use these files as implementation templates:
    - Use `@cached_property` for all properties
    - Use `_get()` for primitive fields, `_new()` for objects, `_new_many()` for arrays
    - Use "happy path" type hints (no Optional, no NA in return types)
+   - **For paginated list endpoints**: Import shared `Links` class from `..common.links` for top-level `_links`
 
 6. **Create Test File**
-   - Create: `tests_manual/test_methods_{group}_{method_name}.py`
+   - Create: `tests_manual/methods/{group}/test_methods_{group}_{method_name}.py`
    - Test all properties are accessible using `debug_prop()`
    - Comment out nested properties if parent object is `None` with a note
    - **CRITICAL: For POST/PATCH/DELETE requests, ALL test code must be commented out** to prevent damage to real Confluence data
+   - **Mute fixture format**: Place `mute` on its own line with trailing comma for easy comment in/out:
+     ```python
+     def test(
+         mute,  # on separate line for easy comment in/out
+     ):
+     ```
 
 7. **Run and Verify**
    - For GET requests: Execute the test to ensure all accessible properties work

@@ -8,6 +8,7 @@ from func_args.api import OPT
 from ...client import Confluence
 
 from ..model import BaseRequest, BaseResponse
+from ..common.links import Links
 
 
 # ------------------------------------------------------------------------------
@@ -223,20 +224,6 @@ class GetPagesResponseResult(BaseResponse):
 
 
 # --- Top level response objects ---
-@dataclasses.dataclass(frozen=True)
-class GetPagesResponseLinks(BaseResponse):
-    """MultiEntityLinks schema for pagination."""
-
-    @cached_property
-    def next(self) -> str:
-        """Relative URL for the next set of results using cursor pagination."""
-        return self._get("next")
-
-    @cached_property
-    def base(self) -> str:
-        """Base URL of the Confluence site."""
-        return self._get("base")
-
 
 @dataclasses.dataclass(frozen=True)
 class GetPagesResponse(BaseResponse):
@@ -247,5 +234,5 @@ class GetPagesResponse(BaseResponse):
         return self._new_many(GetPagesResponseResult, "results")
 
     @cached_property
-    def links(self) -> GetPagesResponseLinks:
-        return self._new(GetPagesResponseLinks, "_links")
+    def links(self) -> Links:
+        return self._new(Links, "_links")
