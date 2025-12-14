@@ -128,6 +128,32 @@ class BaseRequest(BaseModel):
         http_res.raise_for_status()
         return klass(_raw_data=http_res.json(), _http_res=http_res)
 
+    def _sync_put(
+        self,
+        klass: type[T_Response],
+        client: Confluence,
+    ) -> T_Response:
+        """
+        Executes a synchronous PUT request to the API endpoint.
+        """
+        url = f"{client._root_url}{self._path}"
+        params = self._final_params
+        body = self._final_body
+        # --- for debug only
+        # print("----- url")
+        # print(url)
+        # print("----- params")
+        # print(json.dumps(params, indent=4))
+        # print("----- body")
+        # print(json.dumps(body, indent=4))
+        http_res = client.sync_client.put(
+            url=url,
+            params=params,
+            json=body,
+        )
+        http_res.raise_for_status()
+        return klass(_raw_data=http_res.json(), _http_res=http_res)
+
 
 @dataclasses.dataclass(frozen=True)
 class BaseResponse(BaseModel):

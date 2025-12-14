@@ -3,7 +3,7 @@
 import dataclasses
 from functools import cached_property
 
-from func_args.api import OPT
+from func_args.api import REQ, OPT
 
 from ...client import Confluence
 
@@ -19,7 +19,7 @@ class GetSpaceRequest(BaseRequest):
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-id-get
     """
 
-    id: int = dataclasses.field(default=OPT)
+    id: int = dataclasses.field(default=REQ)
     description_format: str = dataclasses.field(default=OPT)
     include_icon: bool = dataclasses.field(default=OPT)
     include_operations: bool = dataclasses.field(default=OPT)

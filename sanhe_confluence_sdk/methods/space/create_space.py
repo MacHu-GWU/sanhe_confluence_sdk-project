@@ -4,7 +4,7 @@ import typing as T
 import dataclasses
 from functools import cached_property
 
-from func_args.api import OPT
+from func_args.api import REQ, OPT
 
 from ...client import Confluence
 
@@ -20,7 +20,7 @@ class CreateSpaceRequest(BaseRequest):
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-post
     """
 
-    name: str = dataclasses.field(default=OPT)
+    name: str = dataclasses.field(default=REQ)
     key: str = dataclasses.field(default=OPT)
     alias: str = dataclasses.field(default=OPT)
     description: T.Dict[str, str] = dataclasses.field(default=OPT)
