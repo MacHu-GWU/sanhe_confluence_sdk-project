@@ -20,7 +20,15 @@ class CreatePageRequest(BaseRequest):
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-post
     """
 
+    # Query parameters (optional)
+    embedded: bool = dataclasses.field(default=OPT)
+    private: bool = dataclasses.field(default=OPT)
+    root_level: bool = dataclasses.field(default=OPT)
+
+    # Body parameters (required)
     space_id: str = dataclasses.field(default=REQ)
+
+    # Body parameters (optional)
     status: str = dataclasses.field(default=OPT)
     title: str = dataclasses.field(default=OPT)
     parent_id: str = dataclasses.field(default=OPT)
@@ -30,6 +38,14 @@ class CreatePageRequest(BaseRequest):
     @property
     def _path(self) -> str:
         return "/pages"
+
+    @property
+    def _params(self):
+        return {
+            "embedded": self.embedded,
+            "private": self.private,
+            "root-level": self.root_level,
+        }
 
     @property
     def _body(self):

@@ -14,6 +14,7 @@ NA = sentinel.create(name="NA")
 
 # TypeVar for generic response class in _sync_get, _new, _new_many
 T_Response = T.TypeVar("T_Response", bound="BaseResponse")
+T_METHOD = T.Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -80,79 +81,59 @@ class BaseRequest(BaseModel):
         body = remove_optional(**self._body)
         return body if len(body) else None
 
+    def _sync(
+        self,
+        method: T_METHOD,
+        klass: type[T_Response] | None,
+        client: Confluence,
+    ):
+        url = f"{client._root_url}{self._path}"
+        params = self._final_params
+        body = self._final_body
+        # --- for debug only
+        # print("----- url") # for debug only
+        # print(url) # for debug only
+        # print("----- params") # for debug only
+        # print(json.dumps(params, indent=4)) # for debug only
+        # if method in ["POST", "PUT", "PATCH"]:
+        #     print("----- body") # for debug only
+        #     print(json.dumps(body, indent=4)) # for debug only
+        http_res = client.sync_client.request(
+            method=method,
+            url=url,
+            params=params,
+            json=body,
+        )
+        http_res.raise_for_status()
+        return klass(_raw_data=http_res.json(), _http_res=http_res)
+
     def _sync_get(
         self,
         klass: type[T_Response],
         client: Confluence,
-    ) -> T_Response:
-        """
-        Executes a synchronous GET request to the API endpoint.
-        """
-        url = f"{client._root_url}{self._path}"
-        params = self._final_params
-        # --- for debug only
-        # print("----- url")
-        # print(url)
-        # print("----- params")
-        # print(json.dumps(params, indent=4))
-        http_res = client.sync_client.get(
-            url=url,
-            params=params,
-        )
-        http_res.raise_for_status()
-        return klass(_raw_data=http_res.json(), _http_res=http_res)
+    ):
+        return self._sync("GET", klass, client)
 
     def _sync_post(
         self,
         klass: type[T_Response],
         client: Confluence,
-    ) -> T_Response:
-        """
-        Executes a synchronous POST request to the API endpoint.
-        """
-        url = f"{client._root_url}{self._path}"
-        params = self._final_params
-        body = self._final_body
-        # --- for debug only
-        # print("----- url")
-        # print(url)
-        # print("----- params")
-        # print(json.dumps(params, indent=4))
-        # print("----- body")
-        # print(json.dumps(body, indent=4))
-        http_res = client.sync_client.post(
-            url=url,
-            params=params,
-            json=body,
-        )
-        http_res.raise_for_status()
-        return klass(_raw_data=http_res.json(), _http_res=http_res)
+    ):
+        return self._sync("POST", klass, client)
 
     def _sync_put(
         self,
         klass: type[T_Response],
         client: Confluence,
-    ) -> T_Response:
-        """
-        Executes a synchronous PUT request to the API endpoint.
-        """
-        url = f"{client._root_url}{self._path}"
-        params = self._final_params
-        body = self._final_body
-        # --- for debug only
-        # print("----- url")
-        # print(url)
-        # print("----- params")
-        # print(json.dumps(params, indent=4))
-        # print("----- body")
-        # print(json.dumps(body, indent=4))
-        http_res = client.sync_client.put(
-            url=url,
-            params=params,
-            json=body,
-        )
-        http_res.raise_for_status()
-        return klass(_raw_data=http_res.json(), _http_res=http_res)
+    ):
+        return self._sync("PUT", klass, client)
+
+    def _sync_delete(
+        self,
+        klass: type[T_Response],
+        client: Confluence,
+    ):
+        return self._sync("DELETE", klass, client)
 
 
 @dataclasses.dataclass(frozen=True)
