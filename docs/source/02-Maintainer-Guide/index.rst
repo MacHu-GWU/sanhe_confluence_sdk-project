@@ -192,6 +192,70 @@ Use comments to clearly separate path parameters, query parameters, and body par
         ],
     ).sync(client)
 
+**1c. Request Class for DELETE**
+
+DELETE requests typically return ``204 No Content`` with no response body. We still return a Response object for consistency, but with empty ``_raw_data``. The ``_sync`` method in ``model.py`` handles this automatically:
+
+.. code-block:: python
+
+    # In model.py _sync method:
+    if http_res.status_code == 204:
+        return klass(_raw_data={}, _http_res=http_res)
+    else:
+        return klass(_raw_data=http_res.json(), _http_res=http_res)
+
+DELETE request implementation:
+
+.. code-block:: python
+
+    @dataclasses.dataclass(frozen=True)
+    class DeletePageRequest(BaseRequest):
+        """
+        See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-id-delete
+        """
+
+        # Path parameters (required)
+        id: int = dataclasses.field(default=REQ)
+
+        # Query parameters (optional)
+        purge: bool = dataclasses.field(default=OPT)
+        draft: bool = dataclasses.field(default=OPT)
+
+        @property
+        def _path(self) -> str:
+            return f"/pages/{self.id}"
+
+        @property
+        def _params(self):
+            return {
+                "purge": self.purge,
+                "draft": self.draft,
+            }
+
+        def sync(self, client: Confluence) -> "DeletePageResponse":
+            return self._sync_delete(DeletePageResponse, client)
+
+
+    # --- Response class (empty since DELETE returns 204 No Content) ---
+    @dataclasses.dataclass(frozen=True)
+    class DeletePageResponse(BaseResponse):
+        """Response for deleting a page."""
+        pass
+
+**Usage example:**
+
+.. code-block:: python
+
+    # Basic delete (moves page to trash)
+    res = DeletePageRequest(id=123456789).sync(client)
+    assert res.http_res.status_code == 204
+
+    # Permanently delete a trashed page
+    res = DeletePageRequest(id=123456789, purge=True).sync(client)
+
+    # Delete a draft page
+    res = DeletePageRequest(id=123456789, draft=True).sync(client)
+
 **2. Response Classes (deepest nested first)**
 
 Define nested classes from deepest to shallowest so type hints work without forward references:
@@ -432,8 +496,10 @@ When implementing a new API method:
 - GET request pattern: ``sanhe_confluence_sdk/methods/space/get_spaces.py``
 - POST request pattern: ``sanhe_confluence_sdk/methods/space/create_space.py``
 - PUT request pattern (with path/query/body separation): ``sanhe_confluence_sdk/methods/page/update_page.py``
+- DELETE request pattern: ``sanhe_confluence_sdk/methods/page/delete_page.py``
 - GET test pattern: ``tests_manual/methods/space/test_methods_space_get_spaces.py``
 - POST test pattern: ``tests_manual/methods/space/test_methods_space_create_space.py``
+- DELETE test pattern: ``tests_manual/methods/page/test_methods_page_delete_page.py``
 
 **3. Implementation Steps**
 
@@ -444,7 +510,7 @@ When implementing a new API method:
 5. Implement ``_path`` property
 6. Implement ``_params`` property for query parameters (even for POST/PUT/PATCH if the API has them)
 7. Implement ``_body`` property for request body (POST/PUT/PATCH only)
-8. Implement ``sync()`` method using ``_sync_get``, ``_sync_post``, etc.
+8. Implement ``sync()`` method using ``_sync_get``, ``_sync_post``, ``_sync_put``, or ``_sync_delete``
 9. Add Response classes (deepest nested first)
 10. Use ``_get`` for primitives, ``_new`` for objects, ``_new_many`` for arrays
 11. For paginated list endpoints, import ``Links`` from ``..common.links`` for top-level ``_links``
@@ -464,6 +530,7 @@ When implementing a new API method:
 - In request body, use ``dict`` type for nested objects (not nested dataclasses)
 - Define response nested classes before parent classes (bottom-up)
 - For paginated endpoints, use shared ``Links`` class (import from ``..common.links``)
+- DELETE requests return a Response object with empty ``_raw_data`` (204 No Content)
 - Comment out ALL test code for POST/PATCH/DELETE requests
 
 
@@ -544,6 +611,42 @@ Quick Reference
 
         def sync(self, client: Confluence) -> "{MethodName}Response":
             return self._sync_post({MethodName}Response, client)
+
+**DELETE Request Template:**
+
+.. code-block:: python
+
+    @dataclasses.dataclass(frozen=True)
+    class {MethodName}Request(BaseRequest):
+        """
+        See: {official_docs_url}
+        """
+
+        # Path parameters (required)
+        id: int = dataclasses.field(default=REQ)
+
+        # Query parameters (optional)
+        purge: bool = dataclasses.field(default=OPT)
+
+        @property
+        def _path(self) -> str:
+            return f"/endpoint/{self.id}"
+
+        @property
+        def _params(self):
+            return {
+                "purge": self.purge,
+            }
+
+        def sync(self, client: Confluence) -> "{MethodName}Response":
+            return self._sync_delete({MethodName}Response, client)
+
+
+    # DELETE returns 204 No Content, so response class is empty
+    @dataclasses.dataclass(frozen=True)
+    class {MethodName}Response(BaseResponse):
+        """Response for {method_name}."""
+        pass
 
 **Response Class Template:**
 

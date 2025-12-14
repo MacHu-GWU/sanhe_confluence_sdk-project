@@ -18,8 +18,10 @@ Use these files as implementation templates:
 - GET request pattern: @sanhe_confluence_sdk/methods/space/get_spaces.py
 - POST request pattern: @sanhe_confluence_sdk/methods/space/create_space.py
 - PUT request pattern (with path/query/body separation): @sanhe_confluence_sdk/methods/page/update_page.py
+- DELETE request pattern: @sanhe_confluence_sdk/methods/page/delete_page.py
 - GET test pattern: @tests_manual/methods/space/test_methods_space_get_spaces.py
 - POST test pattern: @tests_manual/methods/space/test_methods_space_create_space.py
+- DELETE test pattern: @tests_manual/methods/page/test_methods_page_delete_page.py
 - Shared Links class: @sanhe_confluence_sdk/methods/common/links.py
 
 ## Implementation Steps
@@ -50,7 +52,7 @@ Use these files as implementation templates:
    - Implement `_path` property (include path parameters)
    - Implement `_params` property for query parameters (even for POST/PUT/PATCH - check official docs)
    - Implement `_body` property if request has body (for POST/PATCH/PUT)
-   - Implement `sync()` method using appropriate `_sync_get`, `_sync_post`, etc.
+   - Implement `sync()` method using appropriate `_sync_get`, `_sync_post`, `_sync_put`, or `_sync_delete`
    - Add docstring with **only** the official docs URL (no parameter descriptions needed)
 
 5. **Implement Response Classes**
@@ -60,6 +62,7 @@ Use these files as implementation templates:
    - Use `_get()` for primitive fields, `_new()` for objects, `_new_many()` for arrays
    - Use "happy path" type hints (no Optional, no NA in return types)
    - **For paginated list endpoints**: Import shared `Links` class from `..common.links` for top-level `_links`
+   - **For DELETE requests**: Create an empty Response class (DELETE returns 204 No Content with empty `_raw_data`)
 
 6. **Create Test File**
    - Create: `tests_manual/methods/{group}/test_methods_{group}_{method_name}.py`
