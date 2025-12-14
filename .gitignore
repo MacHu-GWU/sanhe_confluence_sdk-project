@@ -1,8 +1,9 @@
 # User Settings
-sanhe_confluence_sdk.egg-info/
+sanhe_confluence_sdk.egg-info
 docs/source/**/index.md
-tmp/
+tmp
 .claude/claude-code-message.md
+sanhe_confluence_sdk/vendor/sanhe_atlassian_sdk
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
