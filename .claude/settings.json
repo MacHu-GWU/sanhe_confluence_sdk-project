@@ -5,12 +5,17 @@
       "Write(./**/*.rst)",
       "Write(sanhe_confluence_sdk/**/*.py)",
       "Write(tests/**/*.py)",
+      "Edit(.claude/**/*.md)",
+      "Edit(./**/*.rst)",
+      "Edit(sanhe_confluence_sdk/**/*.py)",
+      "Edit(tests/**/*.py)",
       "Bash(~/.pyenv/shims/python bin/*.py)",
       "Bash(.venv/bin/python debug/**/*.py)",
       "Bash(.venv/bin/python scripts/**/*.py)",
       "Bash(.venv/bin/python config/**/*.py)",
       "Bash(.venv/bin/python tests/**/*.py)",
-      "Bash(make *)"
+      "Bash(make *)",
+      "WebFetch(domain:developer.atlassian.com)"
     ]
   }
 }
