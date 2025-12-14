@@ -28,9 +28,7 @@ class GetSpacesRequest(BaseRequest):
         }
 
     def sync(self, client: Confluence):
-        http_res = self._sync_get(client=client)
-        http_res.raise_for_status()
-        return GetSpacesResponse(_raw_data=http_res.json())
+        return self._sync_get(GetSpacesResponse, client)
 
 
 # ------------------------------------------------------------------------------

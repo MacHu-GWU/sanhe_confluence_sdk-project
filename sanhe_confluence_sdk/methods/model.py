@@ -6,6 +6,7 @@ import dataclasses
 
 from func_args.api import BaseFrozenModel, remove_optional, T_KWARGS, REQ
 from func_args.vendor import sentinel
+from httpx import Response
 
 from ..client import Confluence
 
@@ -55,6 +56,7 @@ class BaseRequest(BaseModel):
 
     def _sync_get(
         self,
+        klass,
         client: Confluence,
     ):
         """
@@ -67,15 +69,18 @@ class BaseRequest(BaseModel):
         # print(url)
         # print("----- params")
         # print(json.dumps(params, indent=4))
-        return client.sync_client.get(
+        http_res = client.sync_client.get(
             url=url,
             params=params,
         )
+        http_res.raise_for_status()
+        return klass(_raw_data=http_res.json(), _http_res=http_res)
 
 
 @dataclasses.dataclass(frozen=True)
 class BaseResponse(BaseModel):
     _raw_data: T_KWARGS = dataclasses.field()
+    _http_res: Response | None = dataclasses.field(default=None)
 
     @property
     def raw_data(self):
@@ -87,6 +92,15 @@ class BaseResponse(BaseModel):
         access while preserving immutability of the response object.
         """
         return self._raw_data
+
+    @property
+    def http_res(self) -> Response | None:
+        """
+        Returns the underlying HTTP response object, if available.
+
+        This allows access to HTTP metadata such as status code and headers.
+        """
+        return self._http_res
 
     def _get(self, field: str):
         """
