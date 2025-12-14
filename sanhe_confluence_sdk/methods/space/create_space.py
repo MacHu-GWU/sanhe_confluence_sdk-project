@@ -18,23 +18,6 @@ from ..model import BaseRequest, BaseResponse
 class CreateSpaceRequest(BaseRequest):
     """
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-post
-
-    Note: The v2 creation API is for members of the RBAC Early Access Program.
-    If you're not in the RBAC early access program, please use the v1 API.
-
-    :param name: The name of the space to be created. (required)
-    :param key: Space identifier for URLs. Maximum 255 alphanumeric characters.
-        Required if alias is not provided.
-    :param alias: Alternative identifier for space URLs. Maximum 255 alphanumeric
-        characters. Required if key is not provided.
-    :param description: Space summary dict with keys: ``value`` (str) and
-        ``representation`` (str, currently only "plain" supported).
-    :param role_assignments: Initial role assignments list. Each item is a dict
-        with keys: ``principal`` (dict with ``principalType`` and ``principalId``),
-        ``roleId`` (str).
-    :param copy_space_access_configuration: Space ID to inherit access settings from.
-    :param create_private_space: Creates space accessible only to creator.
-    :param template_key: Template identifier for space initialization.
     """
 
     name: str = dataclasses.field(default=OPT)
