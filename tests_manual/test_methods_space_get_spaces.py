@@ -5,7 +5,9 @@ from sanhe_confluence_sdk.methods.space.get_spaces import GetSpacesRequest
 from sanhe_confluence_sdk.tests import client, debug_prop
 
 
-def test():
+def test(
+    mute
+):
     res = GetSpacesRequest().sync(client)
 
     # --- GetSpacesResponse level ---
