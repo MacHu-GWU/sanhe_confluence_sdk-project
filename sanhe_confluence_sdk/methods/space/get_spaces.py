@@ -8,6 +8,7 @@ from func_args.api import OPT
 from ...client import Confluence
 
 from ..model import BaseRequest, BaseResponse
+from ..common.links import Links
 
 
 # ------------------------------------------------------------------------------
@@ -181,21 +182,6 @@ class GetSpacesResponseResult(BaseResponse):
 
 # --- Top level response objects ---
 @dataclasses.dataclass(frozen=True)
-class GetSpacesResponseLinks(BaseResponse):
-    """MultiEntityLinks schema for pagination."""
-
-    @cached_property
-    def next(self) -> str:
-        """Relative URL for the next set of results using cursor pagination."""
-        return self._get("next")
-
-    @cached_property
-    def base(self) -> str:
-        """Base URL of the Confluence site."""
-        return self._get("base")
-
-
-@dataclasses.dataclass(frozen=True)
 class GetSpacesResponse(BaseResponse):
     """MultiEntityResult<SpaceBulk> schema - top level response."""
 
@@ -204,5 +190,5 @@ class GetSpacesResponse(BaseResponse):
         return self._new_many(GetSpacesResponseResult, "results")
 
     @cached_property
-    def links(self) -> GetSpacesResponseLinks:
-        return self._new(GetSpacesResponseLinks, "_links")
+    def links(self) -> Links:
+        return self._new(Links, "_links")
