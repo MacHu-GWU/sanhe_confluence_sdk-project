@@ -15,19 +15,45 @@ from ..model import BaseRequest, BaseResponse
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
 class GetSpacesRequest(BaseRequest):
+    """
+    See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-get
+    """
+
     ids: list[int] = dataclasses.field(default=OPT)
+    keys: list[str] = dataclasses.field(default=OPT)
+    type: str = dataclasses.field(default=OPT)
+    status: str = dataclasses.field(default=OPT)
+    labels: list[str] = dataclasses.field(default=OPT)
+    favorited_by: str = dataclasses.field(default=OPT)
+    not_favorited_by: str = dataclasses.field(default=OPT)
+    sort: str = dataclasses.field(default=OPT)
+    description_format: str = dataclasses.field(default=OPT)
+    include_icon: bool = dataclasses.field(default=OPT)
+    cursor: str = dataclasses.field(default=OPT)
+    limit: int = dataclasses.field(default=OPT)
 
     @property
     def _path(self) -> str:
-        return f"/spaces"
+        return "/spaces"
 
     @property
     def _params(self):
         return {
             "ids": self.ids,
+            "keys": self.keys,
+            "type": self.type,
+            "status": self.status,
+            "labels": self.labels,
+            "favorited-by": self.favorited_by,
+            "not-favorited-by": self.not_favorited_by,
+            "sort": self.sort,
+            "description-format": self.description_format,
+            "include-icon": self.include_icon,
+            "cursor": self.cursor,
+            "limit": self.limit,
         }
 
-    def sync(self, client: Confluence):
+    def sync(self, client: Confluence) -> "GetSpacesResponse":
         return self._sync_get(GetSpacesResponse, client)
 
 
