@@ -88,7 +88,7 @@ class BaseRequest(BaseModel):
         raise NotImplementedError
 
     @property
-    def _params(self) -> T_KWARGS:
+    def _params(self) -> T_KWARGS:  # pragma: no cover
         """
         Constructs query parameters from request attributes.
 
@@ -96,12 +96,11 @@ class BaseRequest(BaseModel):
         The returned dict will be processed by :meth:`_final_params` to remove
         optional/sentinel values before sending.
         """
-        self.to_dict()
         params = self.query_params.to_api_kwargs()
         return params if len(params) else None
 
     @property
-    def _body(self) -> T_KWARGS:
+    def _body(self) -> T_KWARGS:  # pragma: no cover
         """
         Constructs request body from request attributes.
 
@@ -122,15 +121,15 @@ class BaseRequest(BaseModel):
         params = self._params
         body = self._body
         # --- for debug only
-        print("----- method")  # for debug only
-        print(method)  # for debug only
-        print("----- url")  # for debug only
-        print(url)  # for debug only
-        print("----- params")  # for debug only
-        print(json.dumps(params, indent=4))  # for debug only
-        if method in ["POST", "PUT", "PATCH"]:
-            print("----- body")  # for debug only
-            print(json.dumps(body, indent=4))  # for debug only
+        # print("----- method")  # for debug only
+        # print(method)  # for debug only
+        # print("----- url")  # for debug only
+        # print(url)  # for debug only
+        # print("----- params")  # for debug only
+        # print(json.dumps(params, indent=4))  # for debug only
+        # if method in ["POST", "PUT", "PATCH"]:
+        #     print("----- body")  # for debug only
+        #     print(json.dumps(body, indent=4))  # for debug only
 
         http_res = client.sync_client.request(
             method=method,
@@ -142,11 +141,11 @@ class BaseRequest(BaseModel):
         try:
             http_res.raise_for_status()
         except HTTPStatusError as e:
-            print("----- error")  # for debug only
-            print(f"http error: {e}")  # for debug only
-            print(f"status_code: {e.response.status_code}")  # for debug only
-            print(f"headers: {e.response.headers}")  # for debug only
-            print(f"body: {e.response.text}")  # for debug only
+            # print("----- error")  # for debug only
+            # print(f"http error: {e}")  # for debug only
+            # print(f"status_code: {e.response.status_code}")  # for debug only
+            # print(f"headers: {e.response.headers}")  # for debug only
+            # print(f"body: {e.response.text}")  # for debug only
             raise
 
         if http_res.status_code == 204:
@@ -158,28 +157,28 @@ class BaseRequest(BaseModel):
         self,
         klass: type[T_Response],
         client: Confluence,
-    ):
+    ):  # pragma: no cover
         return self._sync("GET", klass, client)
 
     def _sync_post(
         self,
         klass: type[T_Response],
         client: Confluence,
-    ):
+    ):  # pragma: no cover
         return self._sync("POST", klass, client)
 
     def _sync_put(
         self,
         klass: type[T_Response],
         client: Confluence,
-    ):
+    ):  # pragma: no cover
         return self._sync("PUT", klass, client)
 
     def _sync_delete(
         self,
         klass: type[T_Response],
         client: Confluence,
-    ):
+    ):  # pragma: no cover
         return self._sync("DELETE", klass, client)
 
 
