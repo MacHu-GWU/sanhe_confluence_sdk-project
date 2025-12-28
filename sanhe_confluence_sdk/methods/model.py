@@ -25,31 +25,31 @@ T_METHOD = T.Literal[
 ]
 
 
+def api_field(
+    default: T.Any,
+    wire_name: str | None = None,
+):
+    if wire_name:
+        metadata = {"wire_name": wire_name}
+    else:
+        metadata = None
+    return dataclasses.field(default=default, metadata=metadata)
+
+
 @dataclasses.dataclass(frozen=True)
 class BaseModel(BaseFrozenModel):
-    def _to_api_kwargs(self) -> T_KWARGS:
-        """
-        Build the raw API kwargs dict with keys converted to API format.
-
-        Subclasses MUST override this method to provide the key mapping from
-        Python snake_case attributes to Confluence API keys (which may be
-        camelCase, snake_case, or hyphen-case depending on the endpoint).
-
-        NOTE: This is a hook method. Callers should use :meth:`to_api_kwargs`
-        instead, which applies additional processing (e.g., removing optional values).
-        """
-        raise NotImplementedError
-
     def to_api_kwargs(self) -> T_KWARGS:
         """
         Convert this model to API-ready kwargs dict.
-
-        This method calls :meth:`_to_api_kwargs` and removes any optional
-        (sentinel) values, returning a clean dict suitable for API requests.
-
-        This is the public interface - use this method, not :meth:`_to_api_kwargs`.
         """
-        return remove_optional(**self._to_api_kwargs())
+        kwargs = self.to_kwargs()
+        for field in dataclasses.fields(self):
+            try:
+                name = field.metadata["wire_name"]
+                kwargs[name] = kwargs.pop(field.name)
+            except:
+                pass
+        return kwargs
 
 
 # ------------------------------------------------------------------------------
@@ -96,6 +96,7 @@ class BaseRequest(BaseModel):
         The returned dict will be processed by :meth:`_final_params` to remove
         optional/sentinel values before sending.
         """
+        self.to_dict()
         params = self.query_params.to_api_kwargs()
         return params if len(params) else None
 
