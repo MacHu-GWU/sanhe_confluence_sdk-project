@@ -14,12 +14,42 @@ NA = sentinel.create(name="NA")
 
 # TypeVar for generic response class in _sync_get, _new, _new_many
 T_Response = T.TypeVar("T_Response", bound="BaseResponse")
-T_METHOD = T.Literal["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"]
+T_METHOD = T.Literal[
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "HEAD",
+    "OPTIONS",
+]
 
 
 @dataclasses.dataclass(frozen=True)
 class BaseModel(BaseFrozenModel):
-    pass
+    def _to_api_kwargs(self) -> T_KWARGS:
+        """
+        Build the raw API kwargs dict with keys converted to API format.
+
+        Subclasses MUST override this method to provide the key mapping from
+        Python snake_case attributes to Confluence API keys (which may be
+        camelCase, snake_case, or hyphen-case depending on the endpoint).
+
+        NOTE: This is a hook method. Callers should use :meth:`to_api_kwargs`
+        instead, which applies additional processing (e.g., removing optional values).
+        """
+        raise NotImplementedError
+
+    def to_api_kwargs(self) -> T_KWARGS:
+        """
+        Convert this model to API-ready kwargs dict.
+
+        This method calls :meth:`_to_api_kwargs` and removes any optional
+        (sentinel) values, returning a clean dict suitable for API requests.
+
+        This is the public interface - use this method, not :meth:`_to_api_kwargs`.
+        """
+        return remove_optional(**self._to_api_kwargs())
 
 
 # ------------------------------------------------------------------------------
@@ -66,7 +96,7 @@ class BaseRequest(BaseModel):
         The returned dict will be processed by :meth:`_final_params` to remove
         optional/sentinel values before sending.
         """
-        params = self.path_params.to_kwargs()
+        params = self.query_params.to_api_kwargs()
         return params if len(params) else None
 
     @property
@@ -78,7 +108,7 @@ class BaseRequest(BaseModel):
         for POST/PUT/PATCH requests. The returned dict will be processed by
         :meth:`_final_body` to remove optional/sentinel values before sending.
         """
-        params = self.body_params.to_kwargs()
+        params = self.body_params.to_api_kwargs()
         return params if len(params) else None
 
     def _sync(
@@ -93,19 +123,21 @@ class BaseRequest(BaseModel):
         # --- for debug only
         print("----- method")  # for debug only
         print(method)  # for debug only
-        print("----- url") # for debug only
-        print(url) # for debug only
-        print("----- params") # for debug only
-        print(json.dumps(params, indent=4)) # for debug only
+        print("----- url")  # for debug only
+        print(url)  # for debug only
+        print("----- params")  # for debug only
+        print(json.dumps(params, indent=4))  # for debug only
         if method in ["POST", "PUT", "PATCH"]:
-            print("----- body") # for debug only
-            print(json.dumps(body, indent=4)) # for debug only
+            print("----- body")  # for debug only
+            print(json.dumps(body, indent=4))  # for debug only
+
         http_res = client.sync_client.request(
             method=method,
             url=url,
             params=params,
             json=body,
         )
+
         try:
             http_res.raise_for_status()
         except HTTPStatusError as e:
@@ -115,6 +147,7 @@ class BaseRequest(BaseModel):
             print(f"headers: {e.response.headers}")  # for debug only
             print(f"body: {e.response.text}")  # for debug only
             raise
+
         if http_res.status_code == 204:
             return klass(_raw_data={}, _http_res=http_res)
         else:

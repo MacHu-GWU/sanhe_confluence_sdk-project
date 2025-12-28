@@ -5,6 +5,7 @@ import dataclasses
 from functools import cached_property
 
 from func_args.api import REQ, OPT
+from func_args.type_hint import T_KWARGS
 
 from ...client import Confluence
 
@@ -20,6 +21,13 @@ class CreatePageRequestQueryParams(QueryParams):
     private: bool = dataclasses.field(default=OPT)
     root_level: bool = dataclasses.field(default=OPT)
 
+    def _to_api_kwargs(self):
+        return {
+            "embedded": self.embedded,
+            "private": self.private,
+            "root-level": self.root_level,
+        }
+
 
 @dataclasses.dataclass(frozen=True)
 class CreatePageRequestBodyParams(BodyParams):
@@ -29,6 +37,16 @@ class CreatePageRequestBodyParams(BodyParams):
     parent_id: str = dataclasses.field(default=OPT)
     body: T.Dict[str, T.Any] = dataclasses.field(default=OPT)
     subtype: str = dataclasses.field(default=OPT)
+
+    def _to_api_kwargs(self):
+        return {
+            "spaceId": self.space_id,
+            "status": self.status,
+            "title": self.title,
+            "parentId": self.parent_id,
+            "body": self.body,
+            "subtype": self.subtype,
+        }
 
 
 @dataclasses.dataclass(frozen=True)
