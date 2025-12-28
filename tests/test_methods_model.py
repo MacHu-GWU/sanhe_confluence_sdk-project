@@ -65,7 +65,10 @@ class TestApiField:
             name: str = api_field(OPT)
 
         fields = {f.name: f for f in dataclasses.fields(Params)}
-        assert fields["name"].metadata is None or "wire_name" not in fields["name"].metadata
+        assert (
+            fields["name"].metadata is None
+            or "wire_name" not in fields["name"].metadata
+        )
 
     def test_with_wire_name(self):
         """api_field with wire_name should store it in metadata."""
@@ -85,26 +88,21 @@ class TestBaseModelToApiKwargs:
         """Fields without wire_name should use Python attr name as API key."""
         params = ExampleQueryParams(status="current")
         result = params.to_api_kwargs()
-        assert "status" in result
-        assert result["status"] == "current"
+        assert result == {"status": "current"}
 
     def test_wire_name_converts_key(self):
         """Fields with wire_name should convert key to the specified name."""
         params = ExampleQueryParams(page_id="12345")
         result = params.to_api_kwargs()
         # Python attr "page_id" should become API key "pageId"
-        assert "pageId" in result
-        assert "page_id" not in result
-        assert result["pageId"] == "12345"
+        assert result == {"pageId": "12345"}
 
     def test_hyphen_wire_name(self):
         """wire_name with hyphen should work correctly."""
         params = ExampleQueryParams(include_archived=True)
         result = params.to_api_kwargs()
         # Python attr "include_archived" should become "include-archived"
-        assert "include-archived" in result
-        assert "include_archived" not in result
-        assert result["include-archived"] is True
+        assert result == {"include-archived": True}
 
     def test_optional_fields_removed(self):
         """OPT sentinel values should be removed from result."""
