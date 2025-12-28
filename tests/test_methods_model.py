@@ -2,7 +2,151 @@
 
 import pytest
 import dataclasses
-from sanhe_confluence_sdk.methods.model import BaseResponse, NA
+from func_args.api import REQ, OPT
+
+from sanhe_confluence_sdk.methods.model import (
+    BaseResponse,
+    NA,
+    api_field,
+    BaseModel,
+    QueryParams,
+    BodyParams,
+)
+
+
+# ==============================================================================
+# BaseModel and api_field Tests
+# ==============================================================================
+# --- Test fixtures: Define request param models for testing ---
+@dataclasses.dataclass(frozen=True)
+class ExampleQueryParams(QueryParams):
+    """
+    Example query params demonstrating api_field usage.
+
+    Usage pattern:
+    - Use ``api_field(OPT)`` when the Python attr name matches the API key
+    - Use ``api_field(OPT, wire_name="...")`` when they differ
+    """
+
+    # API key is same as Python attr: "status" -> "status"
+    status: str = api_field(OPT)
+    # API key is camelCase: "page_id" -> "pageId"
+    page_id: str = api_field(OPT, wire_name="pageId")
+    # API key uses hyphen: "include_archived" -> "include-archived"
+    include_archived: bool = api_field(OPT, wire_name="include-archived")
+
+
+@dataclasses.dataclass(frozen=True)
+class ExampleBodyParams(BodyParams):
+    """
+    Example body params demonstrating api_field usage with REQ/OPT defaults.
+
+    Usage pattern:
+    - Use ``api_field(REQ, ...)`` for required fields
+    - Use ``api_field(OPT, ...)`` for optional fields
+    """
+
+    # Required field with wire_name
+    space_id: str = api_field(REQ, wire_name="spaceId")
+    # Optional field, API key same as Python attr
+    title: str = api_field(OPT)
+    # Optional field with wire_name
+    parent_id: str = api_field(OPT, wire_name="parentId")
+
+
+class TestApiField:
+    """Tests for api_field factory function."""
+
+    def test_without_wire_name(self):
+        """api_field without wire_name should create field with no metadata."""
+
+        @dataclasses.dataclass(frozen=True)
+        class Params(BaseModel):
+            name: str = api_field(OPT)
+
+        fields = {f.name: f for f in dataclasses.fields(Params)}
+        assert fields["name"].metadata is None or "wire_name" not in fields["name"].metadata
+
+    def test_with_wire_name(self):
+        """api_field with wire_name should store it in metadata."""
+
+        @dataclasses.dataclass(frozen=True)
+        class Params(BaseModel):
+            space_id: str = api_field(OPT, wire_name="spaceId")
+
+        fields = {f.name: f for f in dataclasses.fields(Params)}
+        assert fields["space_id"].metadata["wire_name"] == "spaceId"
+
+
+class TestBaseModelToApiKwargs:
+    """Tests for BaseModel.to_api_kwargs() method."""
+
+    def test_no_wire_name_keeps_original_key(self):
+        """Fields without wire_name should use Python attr name as API key."""
+        params = ExampleQueryParams(status="current")
+        result = params.to_api_kwargs()
+        assert "status" in result
+        assert result["status"] == "current"
+
+    def test_wire_name_converts_key(self):
+        """Fields with wire_name should convert key to the specified name."""
+        params = ExampleQueryParams(page_id="12345")
+        result = params.to_api_kwargs()
+        # Python attr "page_id" should become API key "pageId"
+        assert "pageId" in result
+        assert "page_id" not in result
+        assert result["pageId"] == "12345"
+
+    def test_hyphen_wire_name(self):
+        """wire_name with hyphen should work correctly."""
+        params = ExampleQueryParams(include_archived=True)
+        result = params.to_api_kwargs()
+        # Python attr "include_archived" should become "include-archived"
+        assert "include-archived" in result
+        assert "include_archived" not in result
+        assert result["include-archived"] is True
+
+    def test_optional_fields_removed(self):
+        """OPT sentinel values should be removed from result."""
+        # Only set page_id, leave others as OPT
+        params = ExampleQueryParams(page_id="12345")
+        result = params.to_api_kwargs()
+        # Should only contain the field we set
+        assert result == {"pageId": "12345"}
+
+    def test_mixed_fields(self):
+        """Multiple fields with different wire_name configs should work together."""
+        params = ExampleQueryParams(
+            status="draft",
+            page_id="12345",
+            include_archived=False,
+        )
+        result = params.to_api_kwargs()
+        assert result == {
+            "status": "draft",
+            "pageId": "12345",
+            "include-archived": False,
+        }
+
+    def test_body_params_with_required_field(self):
+        """REQ fields should be included even when no other fields set."""
+        params = ExampleBodyParams(space_id="SPACE123")
+        result = params.to_api_kwargs()
+        assert result == {"spaceId": "SPACE123"}
+
+    def test_body_params_all_fields(self):
+        """All body params should convert correctly."""
+        params = ExampleBodyParams(
+            space_id="SPACE123",
+            title="My Page",
+            parent_id="PAGE456",
+        )
+        result = params.to_api_kwargs()
+        assert result == {
+            "spaceId": "SPACE123",
+            "title": "My Page",
+            "parentId": "PAGE456",
+        }
 
 
 # --- Test fixtures: Define nested response models for testing ---
