@@ -5,11 +5,10 @@ import dataclasses
 from functools import cached_property
 
 from func_args.api import REQ, OPT
-from func_args.type_hint import T_KWARGS
 
 from ...client import Confluence
 
-from ..model import BaseRequest, QueryParams, BodyParams, BaseResponse
+from ..model import api_field, BaseRequest, QueryParams, BodyParams, BaseResponse
 
 
 # ------------------------------------------------------------------------------
@@ -17,36 +16,19 @@ from ..model import BaseRequest, QueryParams, BodyParams, BaseResponse
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
 class CreatePageRequestQueryParams(QueryParams):
-    embedded: bool = dataclasses.field(default=OPT)
-    private: bool = dataclasses.field(default=OPT)
-    root_level: bool = dataclasses.field(default=OPT)
-
-    def _to_api_kwargs(self):
-        return {
-            "embedded": self.embedded,
-            "private": self.private,
-            "root-level": self.root_level,
-        }
+    embedded: bool = api_field(OPT)
+    private: bool = api_field(OPT)
+    root_level: bool = api_field(OPT, "root-level")
 
 
 @dataclasses.dataclass(frozen=True)
 class CreatePageRequestBodyParams(BodyParams):
-    space_id: str = dataclasses.field(default=REQ)
-    status: str = dataclasses.field(default=OPT)
-    title: str = dataclasses.field(default=OPT)
-    parent_id: str = dataclasses.field(default=OPT)
-    body: T.Dict[str, T.Any] = dataclasses.field(default=OPT)
-    subtype: str = dataclasses.field(default=OPT)
-
-    def _to_api_kwargs(self):
-        return {
-            "spaceId": self.space_id,
-            "status": self.status,
-            "title": self.title,
-            "parentId": self.parent_id,
-            "body": self.body,
-            "subtype": self.subtype,
-        }
+    space_id: str = api_field(REQ, "spaceId")
+    status: str = api_field(OPT)
+    title: str = api_field(OPT)
+    parent_id: str = api_field(OPT, "parentId")
+    body: T.Dict[str, T.Any] = api_field(OPT)
+    subtype: str = api_field(OPT)
 
 
 @dataclasses.dataclass(frozen=True)

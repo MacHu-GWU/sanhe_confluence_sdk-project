@@ -43,7 +43,7 @@ def test(
     #     create_private_space=True,
     # ).sync(client)
     #
-    # # --- CreateSpaceResponse level ---
+    # --- CreateSpaceResponse level ---
     # debug_prop(res.id)
     # debug_prop(res.key)
     # debug_prop(res.name)
@@ -56,24 +56,24 @@ def test(
     # debug_prop(res.description)
     # debug_prop(res.icon)
     # debug_prop(res.links)
-    #
-    # # --- CreateSpaceResponseDescription level ---
-    # # debug_prop(res.description.plain)  # description may be None
-    # # debug_prop(res.description.view)  # description may be None
-    #
-    # # --- CreateSpaceResponseDescriptionPlain level ---
-    # # debug_prop(res.description.plain.representation)  # description may be None
-    # # debug_prop(res.description.plain.value)  # description may be None
-    #
-    # # --- CreateSpaceResponseDescriptionView level ---
-    # # debug_prop(res.description.view.representation)  # description may be None
-    # # debug_prop(res.description.view.value)  # description may be None
-    #
-    # # --- CreateSpaceResponseIcon level ---
-    # # debug_prop(res.icon.path)  # icon may be None
-    # # debug_prop(res.icon.apiDownloadLink)  # icon may be None
-    #
-    # # --- CreateSpaceResponseLinks level ---
+
+    # --- CreateSpaceResponseDescription level ---
+    # debug_prop(res.description.plain)  # description may be None
+    # debug_prop(res.description.view)  # description may be None
+
+    # --- CreateSpaceResponseDescriptionPlain level ---
+    # debug_prop(res.description.plain.representation)  # description may be None
+    # debug_prop(res.description.plain.value)  # description may be None
+
+    # --- CreateSpaceResponseDescriptionView level ---
+    # debug_prop(res.description.view.representation)  # description may be None
+    # debug_prop(res.description.view.value)  # description may be None
+
+    # --- CreateSpaceResponseIcon level ---
+    # debug_prop(res.icon.path)  # icon may be None
+    # debug_prop(res.icon.apiDownloadLink)  # icon may be None
+
+    # --- CreateSpaceResponseLinks level ---
     # debug_prop(res.links.webui)
     #
     # print(f"\nCreated space with key: {space_key}")

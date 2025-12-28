@@ -33,17 +33,17 @@ def test(
     4. Re-comment the test code
     """
     # --- Uncomment below to run actual test ---
-    import uuid
-    unique_suffix = uuid.uuid4().hex[:8]
-    res = CreatePageRequest(
-        body_params=CreatePageRequestBodyParams(
-            space_id=SPACE_ID,
-            title=f"Test Page 1 - {unique_suffix}",
-        ),
-    ).sync(client)
+    # import uuid
+    # unique_suffix = uuid.uuid4().hex[:8]
+    # res = CreatePageRequest(
+    #     body_params=CreatePageRequestBodyParams(
+    #         space_id=SPACE_ID,
+    #         title=f"Test Page 1 - {unique_suffix}",
+    #     ),
+    # ).sync(client)
 
     # --- CreatePageResponse level ---
-    debug_prop(res)
+    # debug_prop(res)
     # debug_prop(res.id)
     # debug_prop(res.status)
     # debug_prop(res.title)
@@ -59,32 +59,32 @@ def test(
     # debug_prop(res.version)
     # debug_prop(res.body)
     # debug_prop(res.links)
-    #
-    # # --- CreatePageResponseVersion level ---
+
+    # --- CreatePageResponseVersion level ---
     # debug_prop(res.version.createdAt)
     # debug_prop(res.version.message)
     # debug_prop(res.version.number)
     # debug_prop(res.version.minorEdit)
     # debug_prop(res.version.authorId)
-    #
-    # # --- CreatePageResponseBody level ---
-    # # debug_prop(res.body.storage)  # body may be None
-    # # debug_prop(res.body.atlas_doc_format)  # body may be None
-    # # debug_prop(res.body.view)  # body may be None
-    #
-    # # --- CreatePageResponseBodyStorage level ---
-    # # debug_prop(res.body.storage.representation)  # body may be None
-    # # debug_prop(res.body.storage.value)  # body may be None
-    #
-    # # --- CreatePageResponseBodyAtlasDocFormat level ---
-    # # debug_prop(res.body.atlas_doc_format.representation)  # body may be None
-    # # debug_prop(res.body.atlas_doc_format.value)  # body may be None
-    #
-    # # --- CreatePageResponseBodyView level ---
-    # # debug_prop(res.body.view.representation)  # body may be None
-    # # debug_prop(res.body.view.value)  # body may be None
-    #
-    # # --- CreatePageResponseLinks level ---
+
+    # --- CreatePageResponseBody level ---
+    # debug_prop(res.body.storage)  # body may be None
+    # debug_prop(res.body.atlas_doc_format)  # body may be None
+    # debug_prop(res.body.view)  # body may be None
+
+    # --- CreatePageResponseBodyStorage level ---
+    # debug_prop(res.body.storage.representation)  # body may be None
+    # debug_prop(res.body.storage.value)  # body may be None
+
+    # --- CreatePageResponseBodyAtlasDocFormat level ---
+    # debug_prop(res.body.atlas_doc_format.representation)  # body may be None
+    # debug_prop(res.body.atlas_doc_format.value)  # body may be None
+
+    # --- CreatePageResponseBodyView level ---
+    # debug_prop(res.body.view.representation)  # body may be None
+    # debug_prop(res.body.view.value)  # body may be None
+
+    # --- CreatePageResponseLinks level ---
     # debug_prop(res.links.webui)
     # debug_prop(res.links.editui)
     # debug_prop(res.links.tinyui)
