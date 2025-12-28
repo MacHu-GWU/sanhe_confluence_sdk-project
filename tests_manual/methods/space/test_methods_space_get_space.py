@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from sanhe_confluence_sdk.methods.space.get_space import GetSpaceRequest
+from sanhe_confluence_sdk.methods.space.get_space import (
+    GetSpaceRequest,
+    GetSpaceRequestPathParams,
+    GetSpaceRequestQueryParams,
+)
 
 from sanhe_confluence_sdk.tests import client, debug_prop, SPACE_ID
 
@@ -10,13 +14,15 @@ def test(
 ):
     # Now get the single space by ID with expanded fields
     res = GetSpaceRequest(
-        id=SPACE_ID,
-        description_format="plain",
-        include_icon=True,
-        include_labels=True,
-        include_properties=True,
-        include_operations=True,
-        include_permissions=True,
+        path_params=GetSpaceRequestPathParams(id=int(SPACE_ID)),
+        query_params=GetSpaceRequestQueryParams(
+            description_format="plain",
+            include_icon=True,
+            include_labels=True,
+            include_properties=True,
+            include_operations=True,
+            include_permissions=True,
+        ),
     ).sync(client)
 
     # --- GetSpaceResponse level ---

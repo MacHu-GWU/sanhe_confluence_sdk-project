@@ -7,42 +7,44 @@ from func_args.api import REQ, OPT
 
 from ...client import Confluence
 
-from ..model import BaseRequest, BaseResponse
+from ..model import api_field, BaseRequest, PathParams, QueryParams, BaseResponse
 
 
 # ------------------------------------------------------------------------------
 # Input
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
+class GetSpaceRequestPathParams(PathParams):
+    id: int = api_field(REQ)
+
+
+@dataclasses.dataclass(frozen=True)
+class GetSpaceRequestQueryParams(QueryParams):
+    description_format: str = api_field(OPT, "description-format")
+    include_icon: bool = api_field(OPT, "include-icon")
+    include_operations: bool = api_field(OPT, "include-operations")
+    include_properties: bool = api_field(OPT, "include-properties")
+    include_permissions: bool = api_field(OPT, "include-permissions")
+    include_role_assignments: bool = api_field(OPT, "include-role-assignments")
+    include_labels: bool = api_field(OPT, "include-labels")
+
+
+@dataclasses.dataclass(frozen=True)
 class GetSpaceRequest(BaseRequest):
     """
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-id-get
     """
 
-    id: int = dataclasses.field(default=REQ)
-    description_format: str = dataclasses.field(default=OPT)
-    include_icon: bool = dataclasses.field(default=OPT)
-    include_operations: bool = dataclasses.field(default=OPT)
-    include_properties: bool = dataclasses.field(default=OPT)
-    include_permissions: bool = dataclasses.field(default=OPT)
-    include_role_assignments: bool = dataclasses.field(default=OPT)
-    include_labels: bool = dataclasses.field(default=OPT)
+    path_params: GetSpaceRequestPathParams = dataclasses.field(
+        default_factory=GetSpaceRequestPathParams
+    )
+    query_params: GetSpaceRequestQueryParams = dataclasses.field(
+        default_factory=GetSpaceRequestQueryParams
+    )
 
     @property
     def _path(self) -> str:
-        return f"/spaces/{self.id}"
-
-    @property
-    def _params(self):
-        return {
-            "description-format": self.description_format,
-            "include-icon": self.include_icon,
-            "include-operations": self.include_operations,
-            "include-properties": self.include_properties,
-            "include-permissions": self.include_permissions,
-            "include-role-assignments": self.include_role_assignments,
-            "include-labels": self.include_labels,
-        }
+        return f"/spaces/{self.path_params.id}"
 
     def sync(self, client: Confluence) -> "GetSpaceResponse":
         return self._sync_get(GetSpaceResponse, client)
