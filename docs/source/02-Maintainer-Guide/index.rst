@@ -23,16 +23,45 @@ Core Architecture
 
 Base Classes (``sanhe_confluence_sdk/methods/model.py``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This module defines the foundation:
+This module defines the foundation::
+
+    api_field(default, wire_name=None)
+
+A factory function that simplifies defining request parameters with automatic key conversion:
+
+- ``default``: Use ``REQ`` for required fields, ``OPT`` for optional fields
+- ``wire_name``: The API key name if different from Python attribute name (e.g., ``"spaceId"`` for ``space_id``)
+
+.. code-block:: python
+
+    # API key same as Python attr: "status" -> "status"
+    status: str = api_field(OPT)
+
+    # API key is camelCase: "space_id" -> "spaceId"
+    space_id: str = api_field(REQ, "spaceId")
+
+    # API key uses hyphen: "root_level" -> "root-level"
+    root_level: bool = api_field(OPT, "root-level")
+
+**PathParams, QueryParams, BodyParams**
+
+Base classes for organizing request parameters by type:
+
+- ``PathParams``: Parameters embedded in the URL path (e.g., ``/pages/{id}``)
+- ``QueryParams``: URL query parameters (e.g., ``?limit=10&status=current``)
+- ``BodyParams``: JSON request body fields (for POST/PUT/PATCH)
+
+Each has a ``to_api_kwargs()`` method that automatically:
+
+1. Removes optional (``OPT``) sentinel values
+2. Converts Python attribute names to API key names using ``wire_name``
 
 **BaseRequest**
 
-- Request parameters are dataclass attributes with ``default=REQ`` (required) or ``default=OPT`` (optional)
-- ``_path`` property returns the API endpoint path (e.g., ``/spaces``)
-- ``_params`` property maps Python attributes to API query parameter names (handles ``snake_case`` → ``kebab-case`` conversion)
-- ``_body`` property maps Python attributes to API request body fields (for POST/PUT/PATCH requests)
-- ``_final_params`` property processes ``_params`` to remove optional/sentinel values before sending
-- ``_final_body`` property processes ``_body`` to remove optional/sentinel values before sending
+- Composes three parameter objects: ``path_params``, ``query_params``, ``body_params``
+- ``_path`` property returns the API endpoint path (e.g., ``/spaces/{id}``)
+- ``_params`` property calls ``query_params.to_api_kwargs()`` to get processed query parameters
+- ``_body`` property calls ``body_params.to_api_kwargs()`` to get processed request body
 - ``sync()`` method wraps ``httpx`` GET/POST/PATCH/DELETE calls via ``_sync_get``, ``_sync_post``, etc.
 
 **BaseResponse**
@@ -81,132 +110,117 @@ The ``sanhe_confluence_sdk/methods/`` directory mirrors the official API structu
 
 Per-Method Module Structure
 ------------------------------------------------------------------------------
-Each method module (e.g., ``space/get_spaces.py``) follows this structure:
+Each method module (e.g., ``page/create_page.py``) follows this structure:
 
-**1. Request Class (first)**
+**1. Parameter Classes (QueryParams, BodyParams, PathParams)**
 
-The docstring should contain **only** the official documentation URL - no parameter descriptions are needed since users can refer to the official docs directly.
+Define separate classes for each parameter type. Use ``api_field()`` to define fields:
 
-Use comments to separate different parameter types (path, query, body) and indicate whether they are required or optional. Use ``default=REQ`` for required parameters and ``default=OPT`` for optional parameters.
-
-.. code-block:: python
-
-    @dataclasses.dataclass(frozen=True)
-    class GetSpacesRequest(BaseRequest):
-        """
-        See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-get
-        """
-
-        # Query parameters (all optional for this endpoint)
-        ids: list[int] = dataclasses.field(default=OPT)
-        keys: list[str] = dataclasses.field(default=OPT)
-        limit: int = dataclasses.field(default=OPT)
-        description_format: str = dataclasses.field(default=OPT)
-
-        @property
-        def _path(self) -> str:
-            return "/spaces"
-
-        @property
-        def _params(self):
-            return {
-                "ids": self.ids,
-                "keys": self.keys,
-                "limit": self.limit,
-                # Note: API uses kebab-case, Python uses snake_case
-                "description-format": self.description_format,
-            }
-
-        def sync(self, client: Confluence) -> "GetSpacesResponse":
-            return self._sync_get(GetSpacesResponse, client)
-
-**1b. Request Class with Body (POST/PUT/PATCH)**
-
-For requests that send a body (POST, PUT, PATCH), add the ``_body`` property. Note that POST/PUT/PATCH requests may also have query parameters - always check the official docs and implement ``_params`` if needed.
-
-Nested objects in the request body should be passed as **plain dicts**, not as nested dataclass instances. This keeps the API simple and avoids unnecessary complexity.
-
-Use comments to clearly separate path parameters, query parameters, and body parameters:
+- ``api_field(OPT)`` - optional field, API key same as Python attr
+- ``api_field(OPT, "apiKeyName")`` - optional field with different API key
+- ``api_field(REQ, "apiKeyName")`` - required field with different API key
 
 .. code-block:: python
 
+    from ..model import api_field, BaseRequest, QueryParams, BodyParams, PathParams, BaseResponse
+
+    # --- Query Parameters ---
     @dataclasses.dataclass(frozen=True)
-    class CreateSpaceRequest(BaseRequest):
-        """
-        See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-post
-        """
+    class CreatePageRequestQueryParams(QueryParams):
+        embedded: bool = api_field(OPT)
+        private: bool = api_field(OPT)
+        root_level: bool = api_field(OPT, "root-level")
 
-        # Query parameters (optional)
-        serialize_ids_as_strings: bool = dataclasses.field(default=OPT)
 
-        # Body parameters (required)
-        name: str = dataclasses.field(default=REQ)
-        key: str = dataclasses.field(default=REQ)
-
-        # Body parameters (optional)
-        create_private_space: bool = dataclasses.field(default=OPT)
+    # --- Body Parameters ---
+    @dataclasses.dataclass(frozen=True)
+    class CreatePageRequestBodyParams(BodyParams):
+        space_id: str = api_field(REQ, "spaceId")
+        status: str = api_field(OPT)
+        title: str = api_field(OPT)
+        parent_id: str = api_field(OPT, "parentId")
         # Nested objects use dict type, NOT nested dataclasses
-        description: T.Dict[str, str] = dataclasses.field(default=OPT)
-        role_assignments: T.List[T.Dict[str, T.Any]] = dataclasses.field(default=OPT)
+        body: T.Dict[str, T.Any] = api_field(OPT)
+
+**2. Request Class**
+
+The docstring should contain **only** the official documentation URL. Compose the parameter classes:
+
+.. code-block:: python
+
+    @dataclasses.dataclass(frozen=True)
+    class CreatePageRequest(BaseRequest):
+        """
+        See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-post
+        """
+
+        query_params: CreatePageRequestQueryParams = dataclasses.field(
+            default_factory=CreatePageRequestQueryParams
+        )
+        body_params: CreatePageRequestBodyParams = dataclasses.field(
+            default_factory=CreatePageRequestBodyParams
+        )
 
         @property
         def _path(self) -> str:
-            return "/spaces"
+            return "/pages"
+
+        def sync(self, client: Confluence) -> "CreatePageResponse":
+            return self._sync_post(CreatePageResponse, client)
+
+**2b. Request with Path Parameters**
+
+For endpoints with path parameters (e.g., ``/pages/{id}``), define a ``PathParams`` class and use it in ``_path``:
+
+.. code-block:: python
+
+    @dataclasses.dataclass(frozen=True)
+    class GetPageRequestPathParams(PathParams):
+        id: int = api_field(REQ)
+
+
+    @dataclasses.dataclass(frozen=True)
+    class GetPageRequestQueryParams(QueryParams):
+        body_format: str = api_field(OPT, "body-format")
+        version: int = api_field(OPT)
+
+
+    @dataclasses.dataclass(frozen=True)
+    class GetPageRequest(BaseRequest):
+        """
+        See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-id-get
+        """
+
+        path_params: GetPageRequestPathParams = dataclasses.field(
+            default_factory=GetPageRequestPathParams
+        )
+        query_params: GetPageRequestQueryParams = dataclasses.field(
+            default_factory=GetPageRequestQueryParams
+        )
 
         @property
-        def _params(self):
-            return {
-                "serialize-ids-as-strings": self.serialize_ids_as_strings,
-            }
+        def _path(self) -> str:
+            return f"/pages/{self.path_params.id}"
 
-        @property
-        def _body(self):
-            return {
-                "name": self.name,
-                "key": self.key,
-                "description": self.description,  # dict passed through directly
-                "roleAssignments": self.role_assignments,  # list of dicts
-                "createPrivateSpace": self.create_private_space,
-            }
+        def sync(self, client: Confluence) -> "GetPageResponse":
+            return self._sync_get(GetPageResponse, client)
 
-        def sync(self, client: Confluence) -> "CreateSpaceResponse":
-            return self._sync_post(CreateSpaceResponse, client)
+**2c. DELETE Request**
 
-**Usage example:**
+DELETE requests typically return ``204 No Content`` with no response body. The ``_sync`` method handles this automatically:
 
 .. code-block:: python
 
-    # Nested objects are passed as plain dicts
-    res = CreateSpaceRequest(
-        name="My Space",
-        key="MYSPACE",
-        description={
-            "value": "Space description",
-            "representation": "plain",
-        },
-        role_assignments=[
-            {
-                "principal": {"principalType": "USER", "principalId": "abc123"},
-                "roleId": "role-id",
-            }
-        ],
-    ).sync(client)
+    @dataclasses.dataclass(frozen=True)
+    class DeletePageRequestPathParams(PathParams):
+        id: int = api_field(REQ)
 
-**1c. Request Class for DELETE**
 
-DELETE requests typically return ``204 No Content`` with no response body. We still return a Response object for consistency, but with empty ``_raw_data``. The ``_sync`` method in ``model.py`` handles this automatically:
+    @dataclasses.dataclass(frozen=True)
+    class DeletePageRequestQueryParams(QueryParams):
+        purge: bool = api_field(OPT)
+        draft: bool = api_field(OPT)
 
-.. code-block:: python
-
-    # In model.py _sync method:
-    if http_res.status_code == 204:
-        return klass(_raw_data={}, _http_res=http_res)
-    else:
-        return klass(_raw_data=http_res.json(), _http_res=http_res)
-
-DELETE request implementation:
-
-.. code-block:: python
 
     @dataclasses.dataclass(frozen=True)
     class DeletePageRequest(BaseRequest):
@@ -214,49 +228,57 @@ DELETE request implementation:
         See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-id-delete
         """
 
-        # Path parameters (required)
-        id: int = dataclasses.field(default=REQ)
-
-        # Query parameters (optional)
-        purge: bool = dataclasses.field(default=OPT)
-        draft: bool = dataclasses.field(default=OPT)
+        path_params: DeletePageRequestPathParams = dataclasses.field(
+            default_factory=DeletePageRequestPathParams
+        )
+        query_params: DeletePageRequestQueryParams = dataclasses.field(
+            default_factory=DeletePageRequestQueryParams
+        )
 
         @property
         def _path(self) -> str:
-            return f"/pages/{self.id}"
-
-        @property
-        def _params(self):
-            return {
-                "purge": self.purge,
-                "draft": self.draft,
-            }
+            return f"/pages/{self.path_params.id}"
 
         def sync(self, client: Confluence) -> "DeletePageResponse":
             return self._sync_delete(DeletePageResponse, client)
 
 
-    # --- Response class (empty since DELETE returns 204 No Content) ---
+    # DELETE returns 204 No Content, so response class is empty
     @dataclasses.dataclass(frozen=True)
     class DeletePageResponse(BaseResponse):
         """Response for deleting a page."""
         pass
 
-**Usage example:**
+**Usage Examples:**
 
 .. code-block:: python
 
-    # Basic delete (moves page to trash)
-    res = DeletePageRequest(id=123456789).sync(client)
+    # POST request with body
+    res = CreatePageRequest(
+        body_params=CreatePageRequestBodyParams(
+            space_id="12345",
+            title="My Page",
+            body={
+                "representation": "storage",
+                "value": "<p>Hello World</p>",
+            },
+        ),
+    ).sync(client)
+
+    # GET request with path and query params
+    res = GetPageRequest(
+        path_params=GetPageRequestPathParams(id=123456789),
+        query_params=GetPageRequestQueryParams(body_format="storage"),
+    ).sync(client)
+
+    # DELETE request
+    res = DeletePageRequest(
+        path_params=DeletePageRequestPathParams(id=123456789),
+        query_params=DeletePageRequestQueryParams(purge=True),
+    ).sync(client)
     assert res.http_res.status_code == 204
 
-    # Permanently delete a trashed page
-    res = DeletePageRequest(id=123456789, purge=True).sync(client)
-
-    # Delete a draft page
-    res = DeletePageRequest(id=123456789, draft=True).sync(client)
-
-**2. Response Classes (deepest nested first)**
+**3. Response Classes (deepest nested first)**
 
 Define nested classes from deepest to shallowest so type hints work without forward references:
 
@@ -303,6 +325,12 @@ Define nested classes from deepest to shallowest so type hints work without forw
 
 Naming Conventions
 ------------------------------------------------------------------------------
+**Parameter Class Names**
+
+- ``{MethodName}RequestPathParams`` - path parameters
+- ``{MethodName}RequestQueryParams`` - query parameters
+- ``{MethodName}RequestBodyParams`` - body parameters
+
 **Response Class Names**
 
 Use long names that reflect JSON path as CamelCase:
@@ -445,7 +473,7 @@ For any request that modifies data (POST, PATCH, PUT, DELETE), **ALL test code m
 - Comment out ``mute,`` to see ``debug_prop`` output when debugging
 - Keep ``mute,`` uncommented during CI/normal runs to silence output
 
-**Example for POST/PATCH/DELETE Request** (``tests_manual/methods/space/test_methods_space_create_space.py``):
+**Example for POST/PATCH/DELETE Request** (``tests_manual/methods/page/test_methods_page_create_page.py``):
 
 .. code-block:: python
 
@@ -462,23 +490,25 @@ For any request that modifies data (POST, PATCH, PUT, DELETE), **ALL test code m
         To run the test:
         1. Uncomment the test code below
         2. Run the test
-        3. Delete the created space manually after testing
+        3. Delete the created page manually after testing
         4. Re-comment the test code
         """
         # --- Uncomment below to run actual test ---
-        # res = CreateSpaceRequest(
-        #     name="Test Space",
-        #     key="TESTSPACE",
-        #     description={
-        #         "value": "Test description",
-        #         "representation": "plain",
-        #     },
+        # res = CreatePageRequest(
+        #     body_params=CreatePageRequestBodyParams(
+        #         space_id="12345",
+        #         title="Test Page",
+        #         body={
+        #             "representation": "storage",
+        #             "value": "<p>Test content</p>",
+        #         },
+        #     ),
         # ).sync(client)
         #
-        # # --- CreateSpaceResponse level ---
+        # # --- CreatePageResponse level ---
         # debug_prop(res.id)
-        # debug_prop(res.key)
-        # debug_prop(res.name)
+        # debug_prop(res.title)
+        # debug_prop(res.spaceId)
         pass  # Keep only pass statement
 
 
@@ -493,40 +523,38 @@ When implementing a new API method:
 
 **2. Reference Examples**
 
-- GET request pattern: ``sanhe_confluence_sdk/methods/space/get_spaces.py``
-- POST request pattern: ``sanhe_confluence_sdk/methods/space/create_space.py``
-- PUT request pattern (with path/query/body separation): ``sanhe_confluence_sdk/methods/page/update_page.py``
+- GET request pattern: ``sanhe_confluence_sdk/methods/page/get_page.py``
+- POST request pattern: ``sanhe_confluence_sdk/methods/page/create_page.py``
+- PUT request pattern: ``sanhe_confluence_sdk/methods/page/update_page.py``
 - DELETE request pattern: ``sanhe_confluence_sdk/methods/page/delete_page.py``
 - GET test pattern: ``tests_manual/methods/space/test_methods_space_get_spaces.py``
-- POST test pattern: ``tests_manual/methods/space/test_methods_space_create_space.py``
+- POST test pattern: ``tests_manual/methods/page/test_methods_page_create_page.py``
 - DELETE test pattern: ``tests_manual/methods/page/test_methods_page_delete_page.py``
 
 **3. Implementation Steps**
 
 1. Create module file: ``methods/{group}/{method_name}.py``
-2. Add Request class with path/query/body parameters, using ``default=REQ`` for required and ``default=OPT`` for optional
-3. Use comments to separate path parameters, query parameters, and body parameters
-4. Add docstring with **only** the official docs URL (no parameter descriptions)
-5. Implement ``_path`` property
-6. Implement ``_params`` property for query parameters (even for POST/PUT/PATCH if the API has them)
-7. Implement ``_body`` property for request body (POST/PUT/PATCH only)
-8. Implement ``sync()`` method using ``_sync_get``, ``_sync_post``, ``_sync_put``, or ``_sync_delete``
-9. Add Response classes (deepest nested first)
-10. Use ``_get`` for primitives, ``_new`` for objects, ``_new_many`` for arrays
-11. For paginated list endpoints, import ``Links`` from ``..common.links`` for top-level ``_links``
-12. Create test file: ``tests_manual/methods/{group}/test_methods_{group}_{method_name}.py``
-13. For GET requests: run test, comment out properties where parent is ``None``
-14. For POST/PATCH/DELETE: comment out ALL test code, keep only ``pass``
+2. Define ``PathParams`` class if endpoint has path parameters (use ``api_field(REQ)`` for required path params)
+3. Define ``QueryParams`` class for query parameters (use ``api_field(OPT)`` or ``api_field(OPT, "wire-name")``)
+4. Define ``BodyParams`` class for POST/PUT/PATCH body (use ``api_field(REQ, "wireName")`` for required, ``api_field(OPT)`` for optional)
+5. Define ``Request`` class:
+   - Add docstring with **only** the official docs URL
+   - Compose parameter classes with ``dataclasses.field(default_factory=...)``
+   - Implement ``_path`` property (use ``self.path_params.id`` etc. for path parameters)
+   - Implement ``sync()`` method using ``_sync_get``, ``_sync_post``, ``_sync_put``, or ``_sync_delete``
+6. Add Response classes (deepest nested first)
+7. Use ``_get`` for primitives, ``_new`` for objects, ``_new_many`` for arrays
+8. For paginated list endpoints, import ``Links`` from ``..common.links`` for top-level ``_links``
+9. Create test file: ``tests_manual/methods/{group}/test_methods_{group}_{method_name}.py``
+10. For GET requests: run test, comment out properties where parent is ``None``
+11. For POST/PATCH/DELETE: comment out ALL test code, keep only ``pass``
 
 **4. Key Patterns to Remember**
 
 - All dataclasses use ``frozen=True`` for immutability
-- Required request attributes use ``dataclasses.field(default=REQ)``
-- Optional request attributes use ``dataclasses.field(default=OPT)``
-- Use comments to separate path parameters, query parameters, and body parameters in request classes
-- POST/PUT/PATCH requests may have query parameters too - always implement ``_params`` if the API supports them
+- Use ``api_field(REQ, "wireName")`` for required fields, ``api_field(OPT)`` for optional
+- Use ``wire_name`` parameter when API key differs from Python attr (camelCase, kebab-case, etc.)
 - All response properties use ``@cached_property`` for lazy loading
-- Map kebab-case API params to snake_case Python attrs in ``_params`` and ``_body``
 - In request body, use ``dict`` type for nested objects (not nested dataclasses)
 - Define response nested classes before parent classes (bottom-up)
 - For paginated endpoints, use shared ``Links`` class (import from ``..common.links``)
@@ -541,28 +569,32 @@ Quick Reference
 .. code-block:: python
 
     @dataclasses.dataclass(frozen=True)
+    class {MethodName}RequestPathParams(PathParams):
+        id: int = api_field(REQ)
+
+
+    @dataclasses.dataclass(frozen=True)
+    class {MethodName}RequestQueryParams(QueryParams):
+        param1: str = api_field(OPT)
+        param_two: int = api_field(OPT, "param-two")  # kebab-case in API
+
+
+    @dataclasses.dataclass(frozen=True)
     class {MethodName}Request(BaseRequest):
         """
         See: {official_docs_url}
         """
 
-        # Path parameters (required)
-        id: int = dataclasses.field(default=REQ)
-
-        # Query parameters (optional)
-        param1: str = dataclasses.field(default=OPT)
-        param2: int = dataclasses.field(default=OPT)
+        path_params: {MethodName}RequestPathParams = dataclasses.field(
+            default_factory={MethodName}RequestPathParams
+        )
+        query_params: {MethodName}RequestQueryParams = dataclasses.field(
+            default_factory={MethodName}RequestQueryParams
+        )
 
         @property
         def _path(self) -> str:
-            return f"/endpoint/{self.id}"
-
-        @property
-        def _params(self):
-            return {
-                "param1": self.param1,
-                "param-2": self.param2,  # kebab-case in API
-            }
+            return f"/endpoint/{self.path_params.id}"
 
         def sync(self, client: Confluence) -> "{MethodName}Response":
             return self._sync_get({MethodName}Response, client)
@@ -572,42 +604,35 @@ Quick Reference
 .. code-block:: python
 
     @dataclasses.dataclass(frozen=True)
+    class {MethodName}RequestQueryParams(QueryParams):
+        serialize_ids: bool = api_field(OPT, "serialize-ids-as-strings")
+
+
+    @dataclasses.dataclass(frozen=True)
+    class {MethodName}RequestBodyParams(BodyParams):
+        name: str = api_field(REQ)
+        space_id: str = api_field(REQ, "spaceId")
+        # Nested objects use dict, NOT nested dataclasses
+        description: T.Dict[str, str] = api_field(OPT)
+        items: T.List[T.Dict[str, T.Any]] = api_field(OPT)
+
+
+    @dataclasses.dataclass(frozen=True)
     class {MethodName}Request(BaseRequest):
         """
         See: {official_docs_url}
         """
 
-        # Path parameters (required)
-        id: int = dataclasses.field(default=REQ)
-
-        # Query parameters (optional)
-        serialize_ids_as_strings: bool = dataclasses.field(default=OPT)
-
-        # Body parameters (required)
-        name: str = dataclasses.field(default=REQ)
-
-        # Body parameters (optional)
-        # Nested objects use dict, NOT nested dataclasses
-        description: T.Dict[str, str] = dataclasses.field(default=OPT)
-        items: T.List[T.Dict[str, T.Any]] = dataclasses.field(default=OPT)
+        query_params: {MethodName}RequestQueryParams = dataclasses.field(
+            default_factory={MethodName}RequestQueryParams
+        )
+        body_params: {MethodName}RequestBodyParams = dataclasses.field(
+            default_factory={MethodName}RequestBodyParams
+        )
 
         @property
         def _path(self) -> str:
-            return f"/endpoint/{self.id}"
-
-        @property
-        def _params(self):
-            return {
-                "serialize-ids-as-strings": self.serialize_ids_as_strings,
-            }
-
-        @property
-        def _body(self):
-            return {
-                "name": self.name,
-                "description": self.description,
-                "items": self.items,
-            }
+            return "/endpoint"
 
         def sync(self, client: Confluence) -> "{MethodName}Response":
             return self._sync_post({MethodName}Response, client)
@@ -617,26 +642,31 @@ Quick Reference
 .. code-block:: python
 
     @dataclasses.dataclass(frozen=True)
+    class {MethodName}RequestPathParams(PathParams):
+        id: int = api_field(REQ)
+
+
+    @dataclasses.dataclass(frozen=True)
+    class {MethodName}RequestQueryParams(QueryParams):
+        purge: bool = api_field(OPT)
+
+
+    @dataclasses.dataclass(frozen=True)
     class {MethodName}Request(BaseRequest):
         """
         See: {official_docs_url}
         """
 
-        # Path parameters (required)
-        id: int = dataclasses.field(default=REQ)
-
-        # Query parameters (optional)
-        purge: bool = dataclasses.field(default=OPT)
+        path_params: {MethodName}RequestPathParams = dataclasses.field(
+            default_factory={MethodName}RequestPathParams
+        )
+        query_params: {MethodName}RequestQueryParams = dataclasses.field(
+            default_factory={MethodName}RequestQueryParams
+        )
 
         @property
         def _path(self) -> str:
-            return f"/endpoint/{self.id}"
-
-        @property
-        def _params(self):
-            return {
-                "purge": self.purge,
-            }
+            return f"/endpoint/{self.path_params.id}"
 
         def sync(self, client: Confluence) -> "{MethodName}Response":
             return self._sync_delete({MethodName}Response, client)
@@ -673,7 +703,9 @@ Quick Reference
     def test(
         mute,  # on separate line for easy comment in/out
     ):
-        res = {MethodName}Request().sync(client)
+        res = {MethodName}Request(
+            path_params={MethodName}RequestPathParams(id=123),
+        ).sync(client)
 
         debug_prop(res.field1)
         debug_prop(res.nested)
@@ -698,8 +730,10 @@ Quick Reference
         """
         # --- Uncomment below to run actual test ---
         # res = {MethodName}Request(
-        #     name="Test",
-        #     description={"value": "desc", "representation": "plain"},
+        #     body_params={MethodName}RequestBodyParams(
+        #         name="Test",
+        #         description={"value": "desc", "representation": "plain"},
+        #     ),
         # ).sync(client)
         #
         # debug_prop(res.field1)
