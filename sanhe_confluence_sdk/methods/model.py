@@ -6,7 +6,7 @@ import dataclasses
 
 from func_args.api import BaseFrozenModel, remove_optional, T_KWARGS, REQ
 from func_args.vendor import sentinel
-from httpx import Response
+from httpx import Response, HTTPStatusError
 
 from ..client import Confluence
 
@@ -22,8 +22,30 @@ class BaseModel(BaseFrozenModel):
     pass
 
 
+# ------------------------------------------------------------------------------
+# Request
+# ------------------------------------------------------------------------------
+@dataclasses.dataclass(frozen=True)
+class PathParams(BaseModel):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class QueryParams(BaseModel):
+    pass
+
+
+@dataclasses.dataclass(frozen=True)
+class BodyParams(BaseModel):
+    pass
+
+
 @dataclasses.dataclass(frozen=True)
 class BaseRequest(BaseModel):
+    path_params: PathParams = dataclasses.field(default_factory=PathParams)
+    query_params: QueryParams = dataclasses.field(default_factory=QueryParams)
+    body_params: BodyParams = dataclasses.field(default_factory=BodyParams)
+
     @property
     def _path(self) -> str:
         """
@@ -44,18 +66,7 @@ class BaseRequest(BaseModel):
         The returned dict will be processed by :meth:`_final_params` to remove
         optional/sentinel values before sending.
         """
-        return {}
-
-    @property
-    def _final_params(self) -> T_KWARGS | None:
-        """
-        Returns processed query parameters ready for HTTP request.
-
-        Returns None instead of empty dict because httpx.Client.request()
-        uses None as the default for params, ensuring consistent behavior
-        when no parameters are needed.
-        """
-        params = remove_optional(**self._params)
+        params = self.path_params.to_kwargs()
         return params if len(params) else None
 
     @property
@@ -67,19 +78,8 @@ class BaseRequest(BaseModel):
         for POST/PUT/PATCH requests. The returned dict will be processed by
         :meth:`_final_body` to remove optional/sentinel values before sending.
         """
-        return {}
-
-    @property
-    def _final_body(self) -> T_KWARGS | None:
-        """
-        Returns processed request body ready for HTTP request.
-
-        Returns None instead of empty dict because httpx.Client.request()
-        uses None as the default for json, ensuring consistent behavior
-        when no body is needed.
-        """
-        body = remove_optional(**self._body)
-        return body if len(body) else None
+        params = self.body_params.to_kwargs()
+        return params if len(params) else None
 
     def _sync(
         self,
@@ -88,23 +88,33 @@ class BaseRequest(BaseModel):
         client: Confluence,
     ):
         url = f"{client._root_url}{self._path}"
-        params = self._final_params
-        body = self._final_body
+        params = self._params
+        body = self._body
         # --- for debug only
-        # print("----- url") # for debug only
-        # print(url) # for debug only
-        # print("----- params") # for debug only
-        # print(json.dumps(params, indent=4)) # for debug only
-        # if method in ["POST", "PUT", "PATCH"]:
-        #     print("----- body") # for debug only
-        #     print(json.dumps(body, indent=4)) # for debug only
+        print("----- method")  # for debug only
+        print(method)  # for debug only
+        print("----- url") # for debug only
+        print(url) # for debug only
+        print("----- params") # for debug only
+        print(json.dumps(params, indent=4)) # for debug only
+        if method in ["POST", "PUT", "PATCH"]:
+            print("----- body") # for debug only
+            print(json.dumps(body, indent=4)) # for debug only
         http_res = client.sync_client.request(
             method=method,
             url=url,
             params=params,
             json=body,
         )
-        http_res.raise_for_status()
+        try:
+            http_res.raise_for_status()
+        except HTTPStatusError as e:
+            print("----- error")  # for debug only
+            print(f"http error: {e}")  # for debug only
+            print(f"status_code: {e.response.status_code}")  # for debug only
+            print(f"headers: {e.response.headers}")  # for debug only
+            print(f"body: {e.response.text}")  # for debug only
+            raise
         if http_res.status_code == 204:
             return klass(_raw_data={}, _http_res=http_res)
         else:
@@ -139,6 +149,9 @@ class BaseRequest(BaseModel):
         return self._sync("DELETE", klass, client)
 
 
+# ------------------------------------------------------------------------------
+# Response
+# ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
 class BaseResponse(BaseModel):
     _raw_data: T_KWARGS = dataclasses.field()

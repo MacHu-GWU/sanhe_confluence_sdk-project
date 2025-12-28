@@ -10,9 +10,13 @@ IMPORTANT: For POST/PATCH/DELETE (write) requests, ALL test code must be
 commented out to prevent accidental damage to real Confluence data.
 """
 
-from sanhe_confluence_sdk.methods.page.create_page import CreatePageRequest
+from sanhe_confluence_sdk.methods.page.create_page import (
+    CreatePageRequest,
+    CreatePageRequestQueryParams,
+    CreatePageRequestBodyParams,
+)
 
-from sanhe_confluence_sdk.tests import client, debug_prop
+from sanhe_confluence_sdk.tests import client, debug_prop, SPACE_ID
 
 
 def test(
@@ -29,23 +33,17 @@ def test(
     4. Re-comment the test code
     """
     # --- Uncomment below to run actual test ---
-    # import uuid
-    # unique_suffix = uuid.uuid4().hex[:8]
-    #
-    # # You need to provide a valid space_id from your Confluence instance
-    # space_id = "YOUR_SPACE_ID"
-    #
-    # res = CreatePageRequest(
-    #     space_id=space_id,
-    #     status="current",
-    #     title=f"Test Page {unique_suffix}",
-    #     body={
-    #         "representation": "storage",
-    #         "value": "<p>Test page created by sanhe_confluence_sdk</p>",
-    #     },
-    # ).sync(client)
-    #
-    # # --- CreatePageResponse level ---
+    import uuid
+    unique_suffix = uuid.uuid4().hex[:8]
+    res = CreatePageRequest(
+        body_params=CreatePageRequestBodyParams(
+            space_id=SPACE_ID,
+            title=f"Test Page 1 - {unique_suffix}",
+        ),
+    ).sync(client)
+
+    # --- CreatePageResponse level ---
+    debug_prop(res)
     # debug_prop(res.id)
     # debug_prop(res.status)
     # debug_prop(res.title)

@@ -8,55 +8,45 @@ from func_args.api import REQ, OPT
 
 from ...client import Confluence
 
-from ..model import BaseRequest, BaseResponse
+from ..model import BaseRequest, QueryParams, BodyParams, BaseResponse
 
 
 # ------------------------------------------------------------------------------
 # Input
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
-class CreatePageRequest(BaseRequest):
-    """
-    See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-post
-    """
-
-    # Query parameters (optional)
+class CreatePageRequestQueryParams(QueryParams):
     embedded: bool = dataclasses.field(default=OPT)
     private: bool = dataclasses.field(default=OPT)
     root_level: bool = dataclasses.field(default=OPT)
 
-    # Body parameters (required)
-    space_id: str = dataclasses.field(default=REQ)
 
-    # Body parameters (optional)
+@dataclasses.dataclass(frozen=True)
+class CreatePageRequestBodyParams(BodyParams):
+    space_id: str = dataclasses.field(default=REQ)
     status: str = dataclasses.field(default=OPT)
     title: str = dataclasses.field(default=OPT)
     parent_id: str = dataclasses.field(default=OPT)
     body: T.Dict[str, T.Any] = dataclasses.field(default=OPT)
     subtype: str = dataclasses.field(default=OPT)
 
+
+@dataclasses.dataclass(frozen=True)
+class CreatePageRequest(BaseRequest):
+    """
+    See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-post
+    """
+
+    query_params: CreatePageRequestQueryParams = dataclasses.field(
+        default_factory=CreatePageRequestQueryParams
+    )
+    body_params: CreatePageRequestBodyParams = dataclasses.field(
+        default_factory=CreatePageRequestBodyParams
+    )
+
     @property
     def _path(self) -> str:
         return "/pages"
-
-    @property
-    def _params(self):
-        return {
-            "embedded": self.embedded,
-            "private": self.private,
-            "root-level": self.root_level,
-        }
-
-    @property
-    def _body(self):
-        return {
-            "spaceId": self.space_id,
-            "status": self.status,
-            "title": self.title,
-            "parentId": self.parent_id,
-            "body": self.body,
-            "subtype": self.subtype,
-        }
 
     def sync(self, client: Confluence) -> "CreatePageResponse":
         return self._sync_post(CreatePageResponse, client)
