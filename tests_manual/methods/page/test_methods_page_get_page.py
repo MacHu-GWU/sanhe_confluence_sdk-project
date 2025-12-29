@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from sanhe_confluence_sdk.methods.page.get_page import GetPageRequest
+from sanhe_confluence_sdk.methods.page.get_page import (
+    GetPageRequest,
+    GetPageRequestPathParams,
+    GetPageRequestQueryParams,
+)
 
 from sanhe_confluence_sdk.tests import client, debug_prop, PAGE_ID
 
@@ -9,7 +13,9 @@ def test(
     # mute,
 ):
     # Get the single page
-    res = GetPageRequest(id=PAGE_ID).sync(client)
+    res = GetPageRequest(
+        path_params=GetPageRequestPathParams(id=int(PAGE_ID)),
+    ).sync(client)
 
     # --- GetPageResponse level ---
     debug_prop(res.id)

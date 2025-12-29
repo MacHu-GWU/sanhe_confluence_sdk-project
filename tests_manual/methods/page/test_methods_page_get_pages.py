@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from sanhe_confluence_sdk.methods.page.get_pages import GetPagesRequest
+from sanhe_confluence_sdk.methods.page.get_pages import (
+    GetPagesRequest,
+    GetPagesRequestQueryParams,
+)
 
 from sanhe_confluence_sdk.tests import client, debug_prop
 

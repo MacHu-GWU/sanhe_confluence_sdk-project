@@ -7,59 +7,51 @@ from func_args.api import REQ, OPT
 
 from ...client import Confluence
 
-from ..model import BaseRequest, BaseResponse
+from ..model import api_field, BaseRequest, PathParams, QueryParams, BaseResponse
 
 
 # ------------------------------------------------------------------------------
 # Input
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
+class GetPageRequestPathParams(PathParams):
+    id: int = api_field(REQ)
+
+
+@dataclasses.dataclass(frozen=True)
+class GetPageRequestQueryParams(QueryParams):
+    body_format: str = api_field(OPT, "body-format")
+    get_draft: bool = api_field(OPT, "get-draft")
+    status: list[str] = api_field(OPT)
+    version: int = api_field(OPT)
+    include_labels: bool = api_field(OPT, "include-labels")
+    include_properties: bool = api_field(OPT, "include-properties")
+    include_operations: bool = api_field(OPT, "include-operations")
+    include_likes: bool = api_field(OPT, "include-likes")
+    include_versions: bool = api_field(OPT, "include-versions")
+    include_version: bool = api_field(OPT, "include-version")
+    include_favorited_by_current_user_status: bool = api_field(OPT, "include-favorited-by-current-user-status")
+    include_webresources: bool = api_field(OPT, "include-webresources")
+    include_collaborators: bool = api_field(OPT, "include-collaborators")
+    include_direct_children: bool = api_field(OPT, "include-direct-children")
+
+
+@dataclasses.dataclass(frozen=True)
 class GetPageRequest(BaseRequest):
     """
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-id-get
     """
 
-    # Path parameters (required)
-    id: int = dataclasses.field(default=REQ)
-
-    # Query parameters (optional)
-    body_format: str = dataclasses.field(default=OPT)
-    get_draft: bool = dataclasses.field(default=OPT)
-    status: list[str] = dataclasses.field(default=OPT)
-    version: int = dataclasses.field(default=OPT)
-    include_labels: bool = dataclasses.field(default=OPT)
-    include_properties: bool = dataclasses.field(default=OPT)
-    include_operations: bool = dataclasses.field(default=OPT)
-    include_likes: bool = dataclasses.field(default=OPT)
-    include_versions: bool = dataclasses.field(default=OPT)
-    include_version: bool = dataclasses.field(default=OPT)
-    include_favorited_by_current_user_status: bool = dataclasses.field(default=OPT)
-    include_webresources: bool = dataclasses.field(default=OPT)
-    include_collaborators: bool = dataclasses.field(default=OPT)
-    include_direct_children: bool = dataclasses.field(default=OPT)
+    path_params: GetPageRequestPathParams = dataclasses.field(
+        default_factory=GetPageRequestPathParams
+    )
+    query_params: GetPageRequestQueryParams = dataclasses.field(
+        default_factory=GetPageRequestQueryParams
+    )
 
     @property
     def _path(self) -> str:
-        return f"/pages/{self.id}"
-
-    @property
-    def _params(self):
-        return {
-            "body-format": self.body_format,
-            "get-draft": self.get_draft,
-            "status": self.status,
-            "version": self.version,
-            "include-labels": self.include_labels,
-            "include-properties": self.include_properties,
-            "include-operations": self.include_operations,
-            "include-likes": self.include_likes,
-            "include-versions": self.include_versions,
-            "include-version": self.include_version,
-            "include-favorited-by-current-user-status": self.include_favorited_by_current_user_status,
-            "include-webresources": self.include_webresources,
-            "include-collaborators": self.include_collaborators,
-            "include-direct-children": self.include_direct_children,
-        }
+        return f"/pages/{self.path_params.id}"
 
     def sync(self, client: Confluence) -> "GetPageResponse":
         return self._sync_get(GetPageResponse, client)

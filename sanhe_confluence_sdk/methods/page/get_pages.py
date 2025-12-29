@@ -7,7 +7,7 @@ from func_args.api import OPT
 
 from ...client import Confluence
 
-from ..model import BaseRequest, BaseResponse
+from ..model import api_field, BaseRequest, QueryParams, BaseResponse
 from ..common.links import Links
 
 
@@ -15,38 +15,31 @@ from ..common.links import Links
 # Input
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
+class GetPagesRequestQueryParams(QueryParams):
+    id: list[int] = api_field(OPT)
+    space_id: list[int] = api_field(OPT, "space-id")
+    sort: str = api_field(OPT)
+    status: list[str] = api_field(OPT)
+    title: str = api_field(OPT)
+    body_format: str = api_field(OPT, "body-format")
+    subtype: str = api_field(OPT)
+    cursor: str = api_field(OPT)
+    limit: int = api_field(OPT)
+
+
+@dataclasses.dataclass(frozen=True)
 class GetPagesRequest(BaseRequest):
     """
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-get
     """
 
-    id: list[int] = dataclasses.field(default=OPT)
-    space_id: list[int] = dataclasses.field(default=OPT)
-    sort: str = dataclasses.field(default=OPT)
-    status: list[str] = dataclasses.field(default=OPT)
-    title: str = dataclasses.field(default=OPT)
-    body_format: str = dataclasses.field(default=OPT)
-    subtype: str = dataclasses.field(default=OPT)
-    cursor: str = dataclasses.field(default=OPT)
-    limit: int = dataclasses.field(default=OPT)
+    query_params: GetPagesRequestQueryParams = dataclasses.field(
+        default_factory=GetPagesRequestQueryParams
+    )
 
     @property
     def _path(self) -> str:
         return "/pages"
-
-    @property
-    def _params(self):
-        return {
-            "id": self.id,
-            "space-id": self.space_id,
-            "sort": self.sort,
-            "status": self.status,
-            "title": self.title,
-            "body-format": self.body_format,
-            "subtype": self.subtype,
-            "cursor": self.cursor,
-            "limit": self.limit,
-        }
 
     def sync(self, client: Confluence) -> "GetPagesResponse":
         return self._sync_get(GetPagesResponse, client)
