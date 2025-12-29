@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import typing as T
 import dataclasses
 
 from .client import Confluence
@@ -36,7 +37,7 @@ def paginate(
     max_pages: int = 100,
     limit_field: str = "limit",
     results_field: str = "results",
-):
+) -> T.Iterator[T_RESPONSE]:
     """
     Generic paginator for Confluence API list endpoints.
 
