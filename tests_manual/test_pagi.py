@@ -3,11 +3,10 @@
 from sanhe_confluence_sdk.pagi import paginate
 from sanhe_confluence_sdk.methods.space.get_spaces import (
     GetSpacesRequest,
-    GetSpacesRequestQueryParams,
     GetSpacesResponse,
 )
 
-from sanhe_confluence_sdk.tests import client, debug_prop
+from sanhe_confluence_sdk.tests import client
 
 
 def test_paginate_case_1(
