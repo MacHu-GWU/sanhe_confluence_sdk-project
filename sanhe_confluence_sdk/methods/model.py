@@ -111,6 +111,12 @@ class BaseRequest(BaseModel):
         params = self.body_params.to_api_kwargs()
         return params if len(params) else None
 
+    def sync(
+        self,
+        client: Confluence,
+    ) -> "T_RESPONSE":
+        raise NotImplementedError
+
     def _sync(
         self,
         method: T_METHOD,
@@ -148,10 +154,7 @@ class BaseRequest(BaseModel):
             # print(f"body: {e.response.text}")  # for debug only
             raise
 
-        if http_res.status_code == 204:
-            return klass(_raw_data={}, _http_res=http_res)
-        else:
-            return klass(_raw_data=http_res.json(), _http_res=http_res)
+        return klass.from_success_http_response(http_res)
 
     def _sync_get(
         self,
@@ -182,6 +185,9 @@ class BaseRequest(BaseModel):
         return self._sync("DELETE", klass, client)
 
 
+T_REQUEST = T.TypeVar("T_REQUEST", bound=BaseRequest)
+
+
 # ------------------------------------------------------------------------------
 # Response
 # ------------------------------------------------------------------------------
@@ -209,6 +215,16 @@ class BaseResponse(BaseModel):
         This allows access to HTTP metadata such as status code and headers.
         """
         return self._http_res
+
+    @classmethod
+    def from_success_http_response(
+        cls,
+        http_res: Response,
+    ):
+        if http_res.status_code == 204:
+            return cls(_raw_data={}, _http_res=http_res)
+        else:
+            return cls(_raw_data=http_res.json(), _http_res=http_res)
 
     def _get(self, field: str):
         """
@@ -257,3 +273,6 @@ class BaseResponse(BaseModel):
             return value
         else:
             return [klass(_raw_data=raw_data) for raw_data in value]
+
+
+T_RESPONSE = T.TypeVar("T_RESPONSE", bound=BaseResponse)
