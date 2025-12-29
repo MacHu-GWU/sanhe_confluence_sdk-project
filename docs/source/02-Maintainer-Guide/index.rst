@@ -381,6 +381,98 @@ The ``Links`` class provides:
 - **Use method-specific**: For nested ``_links`` objects within result items (e.g., ``GetPagesResponseResultLinks``)
 
 
+Pagination Utility
+------------------------------------------------------------------------------
+The ``sanhe_confluence_sdk/pagi.py`` module provides a generic ``paginate()`` function for iterating through paginated list endpoints.
+
+**How Confluence Pagination Works:**
+
+- Response contains ``_links.next`` with relative URL for next page (if more data exists)
+- Response contains ``_links.base`` with the base URL
+- Items are in the ``results`` field
+- Page size is controlled by ``limit`` query parameter
+
+**The ``paginate()`` Function:**
+
+.. code-block:: python
+
+    from sanhe_confluence_sdk.pagi import paginate
+    from sanhe_confluence_sdk.methods.space.get_spaces import (
+        GetSpacesRequest,
+        GetSpacesResponse,
+    )
+
+    # Iterate through all spaces, 10 per page, up to 100 items
+    for response in paginate(
+        client=client,
+        request=GetSpacesRequest(),
+        response_type=GetSpacesResponse,
+        page_size=10,
+        max_items=100,
+    ):
+        for space in response.results:
+            print(space.name)
+
+**Parameters:**
+
+- ``client``: Confluence client instance
+- ``request``: Initial request object (must have ``query_params``)
+- ``response_type``: Response class for deserialization
+- ``page_size``: Number of items per page (sets the ``limit`` query parameter)
+- ``max_items``: Stop fetching when total items >= this value
+- ``max_pages``: Maximum pages to fetch (default 100, safeguard against infinite loops)
+- ``limit_field``: Name of limit parameter (default ``"limit"``)
+- ``results_field``: Name of results field in response (default ``"results"``)
+
+**Parameter Validation:**
+
+- ``page_size`` must be >= 1
+- ``max_pages`` must be >= 1
+- If ``max_items < page_size``, it's automatically adjusted to ``page_size`` (you always get at least one full page)
+
+**Exceptions:**
+
+- ``PaginationError``: Base exception for pagination errors
+- ``MissingLinksError``: Raised when response doesn't have expected ``links`` attribute
+
+**Implementation Details:**
+
+The function uses ``dataclasses.replace()`` to immutably modify the request's ``query_params`` with the desired ``page_size``. It yields response objects (not individual items), allowing the caller to access both the items and response metadata.
+
+.. code-block:: python
+
+    # The paginator modifies query_params immutably
+    request = dataclasses.replace(
+        request,
+        query_params=dataclasses.replace(
+            request.query_params,
+            limit=page_size,  # or custom limit_field
+        ),
+    )
+
+**Loop Structure:**
+
+.. code-block:: python
+
+    # First request
+    response = request.sync(client)
+    yield response
+
+    # Subsequent requests (at most max_pages - 1)
+    for _ in range(max_pages - 1):
+        # Check stop conditions
+        if n_fetched_items >= max_items:
+            break
+        if not isinstance(response.links.next, str):
+            break  # No more pages
+
+        # Fetch next page using links.next URL
+        url = client.url + response.links.next
+        http_res = client.sync_client.get(url=url)
+        response = response_type.from_success_http_response(http_res)
+        yield response
+
+
 Type Hints Philosophy
 ------------------------------------------------------------------------------
 **Always use "happy path" types:**
