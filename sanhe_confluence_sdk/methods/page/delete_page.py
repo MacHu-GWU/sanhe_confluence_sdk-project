@@ -7,35 +7,39 @@ from func_args.api import REQ, OPT
 
 from ...client import Confluence
 
-from ..model import BaseRequest, BaseResponse
+from ..model import api_field, BaseRequest, PathParams, QueryParams, BaseResponse
 
 
 # ------------------------------------------------------------------------------
 # Input
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
+class DeletePageRequestPathParams(PathParams):
+    id: int = api_field(REQ)
+
+
+@dataclasses.dataclass(frozen=True)
+class DeletePageRequestQueryParams(QueryParams):
+    purge: bool = api_field(OPT)
+    draft: bool = api_field(OPT)
+
+
+@dataclasses.dataclass(frozen=True)
 class DeletePageRequest(BaseRequest):
     """
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-id-delete
     """
 
-    # Path parameters (required)
-    id: int = dataclasses.field(default=REQ)
-
-    # Query parameters (optional)
-    purge: bool = dataclasses.field(default=OPT)
-    draft: bool = dataclasses.field(default=OPT)
+    path_params: DeletePageRequestPathParams = dataclasses.field(
+        default_factory=DeletePageRequestPathParams
+    )
+    query_params: DeletePageRequestQueryParams = dataclasses.field(
+        default_factory=DeletePageRequestQueryParams
+    )
 
     @property
     def _path(self) -> str:
-        return f"/pages/{self.id}"
-
-    @property
-    def _params(self):
-        return {
-            "purge": self.purge,
-            "draft": self.draft,
-        }
+        return f"/pages/{self.path_params.id}"
 
     def sync(self, client: Confluence) -> Response:
         """

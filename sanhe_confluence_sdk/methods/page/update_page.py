@@ -8,48 +8,45 @@ from func_args.api import REQ, OPT
 
 from ...client import Confluence
 
-from ..model import BaseRequest, BaseResponse
+from ..model import api_field, BaseRequest, PathParams, BodyParams, BaseResponse
 
 
 # ------------------------------------------------------------------------------
 # Input
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
+class UpdatePageRequestPathParams(PathParams):
+    id: int = api_field(REQ)
+
+
+@dataclasses.dataclass(frozen=True)
+class UpdatePageRequestBodyParams(BodyParams):
+    id: str = api_field(REQ)
+    status: str = api_field(REQ)
+    title: str = api_field(REQ)
+    body: T.Dict[str, T.Any] = api_field(REQ)
+    version: T.Dict[str, T.Any] = api_field(REQ)
+    space_id: str = api_field(OPT, "spaceId")
+    parent_id: str = api_field(OPT, "parentId")
+    owner_id: str = api_field(OPT, "ownerId")
+
+
+@dataclasses.dataclass(frozen=True)
 class UpdatePageRequest(BaseRequest):
     """
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-page/#api-pages-id-put
     """
 
-    # Path parameter (required)
-    id: int = dataclasses.field(default=REQ)
-
-    # Required body fields
-    status: str = dataclasses.field(default=REQ)
-    title: str = dataclasses.field(default=REQ)
-    body: T.Dict[str, T.Any] = dataclasses.field(default=REQ)
-    version: T.Dict[str, T.Any] = dataclasses.field(default=REQ)
-
-    # Optional body fields
-    space_id: str = dataclasses.field(default=OPT)
-    parent_id: str = dataclasses.field(default=OPT)
-    owner_id: str = dataclasses.field(default=OPT)
+    path_params: UpdatePageRequestPathParams = dataclasses.field(
+        default_factory=UpdatePageRequestPathParams
+    )
+    body_params: UpdatePageRequestBodyParams = dataclasses.field(
+        default_factory=UpdatePageRequestBodyParams
+    )
 
     @property
     def _path(self) -> str:
-        return f"/pages/{self.id}"
-
-    @property
-    def _body(self):
-        return {
-            "id": str(self.id),
-            "status": self.status,
-            "title": self.title,
-            "body": self.body,
-            "version": self.version,
-            "spaceId": self.space_id,
-            "parentId": self.parent_id,
-            "ownerId": self.owner_id,
-        }
+        return f"/pages/{self.path_params.id}"
 
     def sync(self, client: Confluence) -> "UpdatePageResponse":
         return self._sync_put(UpdatePageResponse, client)

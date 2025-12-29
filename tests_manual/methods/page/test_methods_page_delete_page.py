@@ -10,7 +10,11 @@ IMPORTANT: For POST/PATCH/DELETE/PUT (write) requests, ALL test code must be
 commented out to prevent accidental damage to real Confluence data.
 """
 
-from sanhe_confluence_sdk.methods.page.delete_page import DeletePageRequest
+from sanhe_confluence_sdk.methods.page.delete_page import (
+    DeletePageRequest,
+    DeletePageRequestPathParams,
+    DeletePageRequestQueryParams,
+)
 
 from sanhe_confluence_sdk.tests import client, debug_prop
 
@@ -36,24 +40,24 @@ def test(
     #
     # # Basic delete (moves page to trash)
     # res = DeletePageRequest(
-    #     id=page_id,
+    #     path_params=DeletePageRequestPathParams(id=page_id),
     # ).sync(client)
     #
     # # Verify successful deletion
     # print(f"Response status code: {res.status_code}")
     # assert res.status_code == 204
     #
-    # # --- Alternative: Delete a draft page ---
-    # # res = DeletePageRequest(
-    # #     id=page_id,
-    # #     draft=True,
-    # # ).sync(client)
-    #
-    # # --- Alternative: Permanently delete (purge) a trashed page ---
-    # # res = DeletePageRequest(
-    # #     id=page_id,
-    # #     purge=True,
-    # # ).sync(client)
+    # --- Alternative: Delete a draft page ---
+    # res = DeletePageRequest(
+    #     path_params=DeletePageRequestPathParams(id=page_id),
+    #     query_params=DeletePageRequestQueryParams(draft=True),
+    # ).sync(client)
+
+    # --- Alternative: Permanently delete (purge) a trashed page ---
+    # res = DeletePageRequest(
+    #     path_params=DeletePageRequestPathParams(id=page_id),
+    #     query_params=DeletePageRequestQueryParams(purge=True),
+    # ).sync(client)
     pass
 
 

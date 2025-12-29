@@ -10,7 +10,11 @@ IMPORTANT: For POST/PATCH/DELETE/PUT (write) requests, ALL test code must be
 commented out to prevent accidental damage to real Confluence data.
 """
 
-from sanhe_confluence_sdk.methods.page.update_page import UpdatePageRequest
+from sanhe_confluence_sdk.methods.page.update_page import (
+    UpdatePageRequest,
+    UpdatePageRequestPathParams,
+    UpdatePageRequestBodyParams,
+)
 
 from sanhe_confluence_sdk.tests import client, debug_prop
 
@@ -36,17 +40,22 @@ def test(
     # current_version = 1  # Replace with actual current version number
     #
     # res = UpdatePageRequest(
-    #     id=page_id,
-    #     status="current",
-    #     title="Updated Page Title",
-    #     body={
-    #         "representation": "storage",
-    #         "value": "<p>Updated content</p>",
-    #     },
-    #     version={
-    #         "number": current_version + 1,
-    #         "message": "Updated via sanhe_confluence_sdk",
-    #     },
+    #     path_params=UpdatePageRequestPathParams(
+    #         id=page_id,
+    #     ),
+    #     body_params=UpdatePageRequestBodyParams(
+    #         id=str(page_id),
+    #         status="current",
+    #         title="Updated Page Title",
+    #         body={
+    #             "representation": "storage",
+    #             "value": "<p>Updated content</p>",
+    #         },
+    #         version={
+    #             "number": current_version + 1,
+    #             "message": "Updated via sanhe_confluence_sdk",
+    #         },
+    #     ),
     # ).sync(client)
     #
     # # --- UpdatePageResponse level ---
