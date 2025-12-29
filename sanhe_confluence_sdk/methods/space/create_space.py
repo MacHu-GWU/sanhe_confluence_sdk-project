@@ -8,43 +8,37 @@ from func_args.api import REQ, OPT
 
 from ...client import Confluence
 
-from ..model import BaseRequest, BaseResponse
+from ..model import api_field, BaseRequest, BodyParams, BaseResponse
 
 
 # ------------------------------------------------------------------------------
 # Input
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
+class CreateSpaceRequestBodyParams(BodyParams):
+    name: str = api_field(REQ)
+    key: str = api_field(OPT)
+    alias: str = api_field(OPT)
+    description: T.Dict[str, str] = api_field(OPT)
+    role_assignments: T.List[T.Dict[str, T.Any]] = api_field(OPT, "roleAssignments")
+    copy_space_access_configuration: int = api_field(OPT, "copySpaceAccessConfiguration")
+    create_private_space: bool = api_field(OPT, "createPrivateSpace")
+    template_key: str = api_field(OPT, "templateKey")
+
+
+@dataclasses.dataclass(frozen=True)
 class CreateSpaceRequest(BaseRequest):
     """
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-post
     """
 
-    name: str = dataclasses.field(default=REQ)
-    key: str = dataclasses.field(default=OPT)
-    alias: str = dataclasses.field(default=OPT)
-    description: T.Dict[str, str] = dataclasses.field(default=OPT)
-    role_assignments: T.List[T.Dict[str, T.Any]] = dataclasses.field(default=OPT)
-    copy_space_access_configuration: int = dataclasses.field(default=OPT)
-    create_private_space: bool = dataclasses.field(default=OPT)
-    template_key: str = dataclasses.field(default=OPT)
+    body_params: CreateSpaceRequestBodyParams = dataclasses.field(
+        default_factory=CreateSpaceRequestBodyParams
+    )
 
     @property
     def _path(self) -> str:
         return "/spaces"
-
-    @property
-    def _body(self):
-        return {
-            "name": self.name,
-            "key": self.key,
-            "alias": self.alias,
-            "description": self.description,
-            "roleAssignments": self.role_assignments,
-            "copySpaceAccessConfiguration": self.copy_space_access_configuration,
-            "createPrivateSpace": self.create_private_space,
-            "templateKey": self.template_key,
-        }
 
     def sync(self, client: Confluence) -> "CreateSpaceResponse":
         return self._sync_post(CreateSpaceResponse, client)

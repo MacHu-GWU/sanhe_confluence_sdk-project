@@ -10,7 +10,10 @@ IMPORTANT: For POST/PATCH/DELETE (write) requests, ALL test code must be
 commented out to prevent accidental damage to real Confluence data.
 """
 
-from sanhe_confluence_sdk.methods.space.create_space import CreateSpaceRequest
+from sanhe_confluence_sdk.methods.space.create_space import (
+    CreateSpaceRequest,
+    CreateSpaceRequestBodyParams,
+)
 
 from sanhe_confluence_sdk.tests import client, debug_prop
 
@@ -34,13 +37,15 @@ def test(
     # space_key = f"TEST{unique_suffix}"
     #
     # res = CreateSpaceRequest(
-    #     name=f"Test Space {unique_suffix}",
-    #     key=space_key,
-    #     description={
-    #         "value": "Test space created by sanhe_confluence_sdk",
-    #         "representation": "plain",
-    #     },
-    #     create_private_space=True,
+    #     body_params=CreateSpaceRequestBodyParams(
+    #         name=f"Test Space {unique_suffix}",
+    #         key=space_key,
+    #         description={
+    #             "value": "Test space created by sanhe_confluence_sdk",
+    #             "representation": "plain",
+    #         },
+    #         create_private_space=True,
+    #     )
     # ).sync(client)
     #
     # --- CreateSpaceResponse level ---
