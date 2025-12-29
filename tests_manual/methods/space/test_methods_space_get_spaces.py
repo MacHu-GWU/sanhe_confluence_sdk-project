@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from sanhe_confluence_sdk.methods.space.get_spaces import GetSpacesRequest
+from sanhe_confluence_sdk.methods.space.get_spaces import (
+    GetSpacesRequest,
+    GetSpacesRequestQueryParams,
+)
 
 from sanhe_confluence_sdk.tests import client, debug_prop
 

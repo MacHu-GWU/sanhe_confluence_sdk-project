@@ -7,7 +7,7 @@ from func_args.api import OPT
 
 from ...client import Confluence
 
-from ..model import BaseRequest, BaseResponse
+from ..model import api_field, BaseRequest, QueryParams, BaseResponse
 from ..common.links import Links
 
 
@@ -15,44 +15,34 @@ from ..common.links import Links
 # Input
 # ------------------------------------------------------------------------------
 @dataclasses.dataclass(frozen=True)
+class GetSpacesRequestQueryParams(QueryParams):
+    ids: list[int] = api_field(OPT)
+    keys: list[str] = api_field(OPT)
+    type: str = api_field(OPT)
+    status: str = api_field(OPT)
+    labels: list[str] = api_field(OPT)
+    favorited_by: str = api_field(OPT, "favorited-by")
+    not_favorited_by: str = api_field(OPT, "not-favorited-by")
+    sort: str = api_field(OPT)
+    description_format: str = api_field(OPT, "description-format")
+    include_icon: bool = api_field(OPT, "include-icon")
+    cursor: str = api_field(OPT)
+    limit: int = api_field(OPT)
+
+
+@dataclasses.dataclass(frozen=True)
 class GetSpacesRequest(BaseRequest):
     """
     See: https://developer.atlassian.com/cloud/confluence/rest/v2/api-group-space/#api-spaces-get
     """
 
-    ids: list[int] = dataclasses.field(default=OPT)
-    keys: list[str] = dataclasses.field(default=OPT)
-    type: str = dataclasses.field(default=OPT)
-    status: str = dataclasses.field(default=OPT)
-    labels: list[str] = dataclasses.field(default=OPT)
-    favorited_by: str = dataclasses.field(default=OPT)
-    not_favorited_by: str = dataclasses.field(default=OPT)
-    sort: str = dataclasses.field(default=OPT)
-    description_format: str = dataclasses.field(default=OPT)
-    include_icon: bool = dataclasses.field(default=OPT)
-    cursor: str = dataclasses.field(default=OPT)
-    limit: int = dataclasses.field(default=OPT)
+    query_params: GetSpacesRequestQueryParams = dataclasses.field(
+        default_factory=GetSpacesRequestQueryParams
+    )
 
     @property
     def _path(self) -> str:
         return "/spaces"
-
-    @property
-    def _params(self):
-        return {
-            "ids": self.ids,
-            "keys": self.keys,
-            "type": self.type,
-            "status": self.status,
-            "labels": self.labels,
-            "favorited-by": self.favorited_by,
-            "not-favorited-by": self.not_favorited_by,
-            "sort": self.sort,
-            "description-format": self.description_format,
-            "include-icon": self.include_icon,
-            "cursor": self.cursor,
-            "limit": self.limit,
-        }
 
     def sync(self, client: Confluence) -> "GetSpacesResponse":
         return self._sync_get(GetSpacesResponse, client)
