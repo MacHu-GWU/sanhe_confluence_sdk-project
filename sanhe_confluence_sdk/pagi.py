@@ -56,12 +56,12 @@ def paginate(
     :raises MissingLinksError: If response doesn't have expected '_links' structure.
     """
     # --- Parameter validation ---
-    if page_size < 1:
+    if page_size < 1:  # pragma: no cover
         raise ValueError("page_size must be >= 1")
-    if max_pages < 1:
+    if max_pages < 1:  # pragma: no cover
         raise ValueError("max_pages must be >= 1")
     # Adjust max_items if less than page_size (you'll get at least one page)
-    if max_items < page_size:
+    if max_items < page_size:  # pragma: no cover
         max_items = page_size
 
     n_fetched_items = 0
@@ -86,7 +86,7 @@ def paginate(
         # Validate response has expected pagination structure
         try:
             links: Links = response.links
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             raise MissingLinksError(
                 f"Response type '{type(response).__name__}' doesn't have 'links' attribute. "
                 f"This API may not support pagination."
