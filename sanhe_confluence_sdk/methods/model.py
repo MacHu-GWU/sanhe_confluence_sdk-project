@@ -144,16 +144,6 @@ class BaseRequest(BaseModel):
             json=body,
         )
 
-        try:
-            http_res.raise_for_status()
-        except HTTPStatusError as e:
-            # print("----- error")  # for debug only
-            # print(f"http error: {e}")  # for debug only
-            # print(f"status_code: {e.response.status_code}")  # for debug only
-            # print(f"headers: {e.response.headers}")  # for debug only
-            # print(f"body: {e.response.text}")  # for debug only
-            raise
-
         return klass.from_success_http_response(http_res)
 
     def _sync_get(
@@ -221,6 +211,16 @@ class BaseResponse(BaseModel):
         cls,
         http_res: Response,
     ):
+        try:
+            http_res.raise_for_status()
+        except HTTPStatusError as e:
+            # print("----- error")  # for debug only
+            # print(f"http error: {e}")  # for debug only
+            # print(f"status_code: {e.response.status_code}")  # for debug only
+            # print(f"headers: {e.response.headers}")  # for debug only
+            # print(f"body: {e.response.text}")  # for debug only
+            raise
+
         if http_res.status_code == 204:
             return cls(_raw_data={}, _http_res=http_res)
         else:
