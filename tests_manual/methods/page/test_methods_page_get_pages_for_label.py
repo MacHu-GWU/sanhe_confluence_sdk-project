@@ -13,19 +13,14 @@ from sanhe_confluence_sdk.methods.page.get_pages_for_label import (
     GetPagesForLabelRequestQueryParams,
 )
 
-from sanhe_confluence_sdk.tests import client, debug_prop
-
-
-# You'll need to find a valid label ID from your Confluence instance
-# Labels can be found using the GET /pages/{id}/labels endpoint
-LABEL_ID = 123456789  # Replace with actual label ID
+from sanhe_confluence_sdk.tests import client, debug_prop, LABEL_ID
 
 
 def test(
     mute,
 ):
     res = GetPagesForLabelRequest(
-        path_params=GetPagesForLabelRequestPathParams(id=LABEL_ID),
+        path_params=GetPagesForLabelRequestPathParams(id=int(LABEL_ID)),
     ).sync(client)
 
     # --- GetPagesForLabelResponse level ---
