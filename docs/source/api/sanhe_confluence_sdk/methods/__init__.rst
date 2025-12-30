@@ -11,6 +11,7 @@ sub packages and modules
     :maxdepth: 1
 
     common <common/__init__>
+    label <label/__init__>
     page <page/__init__>
     space <space/__init__>
     model <model>
