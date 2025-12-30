@@ -693,7 +693,7 @@ Quick Reference
 ------------------------------------------------------------------------------
 **GET Request Template:**
 
-.. code-block:: python
+.. code-block:: text
 
     @dataclasses.dataclass(frozen=True)
     class {MethodName}RequestPathParams(PathParams):
@@ -728,7 +728,7 @@ Quick Reference
 
 **POST/PUT/PATCH Request Template:**
 
-.. code-block:: python
+.. code-block:: text
 
     @dataclasses.dataclass(frozen=True)
     class {MethodName}RequestQueryParams(QueryParams):
@@ -766,7 +766,7 @@ Quick Reference
 
 **DELETE Request Template:**
 
-.. code-block:: python
+.. code-block:: text
 
     @dataclasses.dataclass(frozen=True)
     class {MethodName}RequestPathParams(PathParams):
@@ -807,7 +807,7 @@ Quick Reference
 
 **Response Class Template:**
 
-.. code-block:: python
+.. code-block:: text
 
     @dataclasses.dataclass(frozen=True)
     class {MethodName}Response(BaseResponse):
@@ -825,7 +825,7 @@ Quick Reference
 
 **GET Test Template:**
 
-.. code-block:: python
+.. code-block:: text
 
     def test(
         mute,  # on separate line for easy comment in/out
