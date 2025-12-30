@@ -14,5 +14,6 @@ sub packages and modules
     label <label/__init__>
     page <page/__init__>
     space <space/__init__>
+    m <m>
     model <model>
     
