@@ -26,7 +26,7 @@ def test(
     for response in paginator:
         records.extend(response.results)
     for record in sorted(records, key=lambda r: r.name):
-        print(f"label id = {record.id}, name = {record.name}")
+        print(f"label id = {record.id}, " f"name = {record.name}")
 
 
 if __name__ == "__main__":
