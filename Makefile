@@ -43,6 +43,7 @@
 		view-cov \
 		int-only \
 		int \
+		gen-m \
 		nb-to-md \
 		build-doc \
 		view-doc \
@@ -127,6 +128,11 @@ int-only:## Run integration tests only (assumes deps installed)
 
 
 int: install install-test int-only ## ⭐ Run integration tests with dependency check
+
+
+# Code Generation Commands
+gen-m: ## 🛠 Generate m.py module for lazy-loading API types
+	.venv/bin/python scripts/gen_m.py
 
 
 # Documentation Commands

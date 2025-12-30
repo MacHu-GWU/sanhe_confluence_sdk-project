@@ -604,6 +604,40 @@ For any request that modifies data (POST, PATCH, PUT, DELETE), **ALL test code m
         pass  # Keep only pass statement
 
 
+Code Generation
+------------------------------------------------------------------------------
+The ``sanhe_confluence_sdk/methods/m.py`` module provides lazy-loading access to all Request/Response classes. This module is **auto-generated** and should not be edited manually.
+
+**Regenerating m.py**
+
+After adding or modifying API methods, run the code generator to update ``m.py``::
+
+    make gen-m
+
+Or directly::
+
+    .venv/bin/python scripts/gen_m.py
+
+**What the generator does:**
+
+1. Scans ``sanhe_confluence_sdk/methods/`` subdirectories (``label/``, ``page/``, ``space/``, etc.)
+2. Discovers all ``*Request`` and ``*Response`` classes
+3. Validates that the classes exist and are importable
+4. Generates ``m.py`` with lazy-loading properties for each class
+
+**Files involved:**
+
+- ``scripts/gen_m.py`` - The generator script
+- ``scripts/m.py.jinja2`` - Jinja2 template for code generation
+- ``sanhe_confluence_sdk/methods/m.py`` - Generated output (DO NOT EDIT)
+
+**When to regenerate:**
+
+- After creating a new API method module
+- After renaming or deleting an existing method
+- After modifying the ``m.py.jinja2`` template
+
+
 Development Workflow
 ------------------------------------------------------------------------------
 When implementing a new API method:
@@ -640,6 +674,7 @@ When implementing a new API method:
 9. Create test file: ``tests_manual/methods/{group}/test_methods_{group}_{method_name}.py``
 10. For GET requests: run test, comment out properties where parent is ``None``
 11. For POST/PATCH/DELETE: comment out ALL test code, keep only ``pass``
+12. Run ``make gen-m`` to regenerate ``m.py`` with the new Request/Response classes
 
 **4. Key Patterns to Remember**
 
