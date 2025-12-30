@@ -22,3 +22,7 @@ See @README.rst for complete project overview.
 3. **Development**: Edit code in ``sanhe_confluence_sdk/**/*.py`` → Run tests ``.venv/bin/python tests/**/*.py``
 4. **Testing**: `make test` or `make cov` for coverage
 5. **Build Document**: `make build-doc && make view-doc` for build sphinx docs and open local html doc site in web browser
+
+## Comprehensive Guide
+
+- [Maintainer-Guide](./docs/source/02-Maintainer-Guide/index.rst)
