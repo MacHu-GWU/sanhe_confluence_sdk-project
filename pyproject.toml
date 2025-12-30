@@ -65,6 +65,7 @@ dev = [
     "twine>=6.0.0,<7.0.0", # distribute package to PyPI
     "wheel>=0.45.0,<1.0.0", # build wheel package
     "build>=1.2.1,<2.0.0", # build source distribution
+    "jinja2>=3.0.0,<4.0.0", # templating engine
 ]
 
 # ------------------------------------------------------------------------------
