@@ -658,24 +658,6 @@ files = [
 devel = ["colorama", "json-spec", "jsonschema", "pylint", "pytest", "pytest-benchmark", "pytest-cache", "validictory"]
 
 [[package]]
-name = "fire"
-version = "0.7.1"
-description = "A library for automatically generating command line interfaces."
-optional = false
-python-versions = ">=3.7"
-groups = ["main"]
-files = [
-    {file = "fire-0.7.1-py3-none-any.whl", hash = "sha256:e43fd8a5033a9001e7e2973bab96070694b9f12f2e0ecf96d4683971b5ab1882"},
-    {file = "fire-0.7.1.tar.gz", hash = "sha256:3b208f05c736de98fb343310d090dcc4d8c78b2a89ea4f32b837c586270a9cbf"},
-]
-
-[package.dependencies]
-termcolor = "*"
-
-[package.extras]
-test = ["hypothesis (<6.136.0)", "levenshtein (<=0.27.1)", "pip", "pylint (<3.3.8)", "pytest (<=8.4.1)", "pytest-pylint (<=1.1.2)", "pytest-runner (<7.0.0)", "setuptools (<=80.9.0)", "termcolor (<3.2.0)"]
-
-[[package]]
 name = "func-args"
 version = "1.0.1"
 description = "A lightweight Python library for creating wrapper functions with enhanced argument handling using sentinel values to mark parameters as required or optional."
@@ -2266,6 +2248,27 @@ docs = ["docfly (==1.0.2)", "furo (==2021.8.31)", "rstobj", "sphinx (==4.3.0)", 
 tests = ["pytest", "pytest-cov"]
 
 [[package]]
+name = "sanhe-atlassian-sdk"
+version = "0.1.1"
+description = "Sanhe's Atlassian SDK for Python"
+optional = false
+python-versions = "<4.0,>=3.10"
+groups = ["main"]
+files = [
+    {file = "sanhe_atlassian_sdk-0.1.1-py3-none-any.whl", hash = "sha256:85a8a28bd1cdc49ab8b9621234b21e9f8d8399144206581d183fd4a1146687d1"},
+    {file = "sanhe_atlassian_sdk-0.1.1.tar.gz", hash = "sha256:6df572e816044a0a95898b585c3d16f0db9c9e72a0ac37c421a4dd3fc859c4cb"},
+]
+
+[package.dependencies]
+httpx = ">=0.27.2,<1.0.0"
+pydantic = ">=2.10.0,<3.0.0"
+
+[package.extras]
+dev = ["build (>=1.2.1,<2.0.0)", "rich (>=13.8.1,<14.0.0)", "twine (>=6.0.0,<7.0.0)", "wheel (>=0.45.0,<1.0.0)"]
+doc = ["Sphinx (>=7.4.7,<8.0.0)", "docfly (==3.0.0)", "furo (==2024.8.6)", "ipython (>=8.18.1,<8.19.0)", "nbsphinx (>=0.8.12,<1.0.0)", "pygments (>=2.18.0,<3.0.0)", "rstobj (==1.2.1)", "sphinx-copybutton (>=0.5.2,<1.0.0)", "sphinx-design (>=0.6.1,<1.0.0)", "sphinx-jinja (>=2.0.2,<3.0.0)"]
+test = ["pytest (>=8.2.2,<9.0.0)", "pytest-cov (>=6.0.0,<7.0.0)"]
+
+[[package]]
 name = "secretstorage"
 version = "3.3.3"
 description = "Python bindings to FreeDesktop.org Secret Service API"
@@ -2570,21 +2573,6 @@ pure-eval = "*"
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
 
 [[package]]
-name = "termcolor"
-version = "3.2.0"
-description = "ANSI color formatting for output in terminal"
-optional = false
-python-versions = ">=3.10"
-groups = ["main"]
-files = [
-    {file = "termcolor-3.2.0-py3-none-any.whl", hash = "sha256:a10343879eba4da819353c55cb8049b0933890c2ebf9ad5d3ecd2bb32ea96ea6"},
-    {file = "termcolor-3.2.0.tar.gz", hash = "sha256:610e6456feec42c4bcd28934a8c87a06c3fa28b01561d46aa09a9881b8622c58"},
-]
-
-[package.extras]
-tests = ["pytest", "pytest-cov"]
-
-[[package]]
 name = "tinycss2"
 version = "1.4.0"
 description = "A tiny CSS parser"
@@ -2850,4 +2838,4 @@ test = ["home_secret_toml", "pytest", "pytest-cov", "rich", "varname"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "6a3b4aac239e8b3445df0dec5bdf00343fa767ff7cfa0379375b8d55b4d596b7"
+content-hash = "bac8c1b480f7f9a842def489c68ab416881ba096c34126d3a2d8ae99c88b1a59"

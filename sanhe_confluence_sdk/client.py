@@ -2,7 +2,7 @@
 
 from functools import cached_property
 
-from .vendor.sanhe_atlassian_sdk.api import Atlassian
+from sanhe_atlassian_sdk.api import Atlassian
 
 
 class Confluence(Atlassian):
