@@ -5,6 +5,10 @@ from sanhe_confluence_sdk import api
 
 def test():
     _ = api
+    _ = api.Confluence
+    _ = api.PaginationError
+    _ = api.paginate
+    _ = api.m
 
 
 if __name__ == "__main__":
