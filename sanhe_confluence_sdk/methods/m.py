@@ -31,6 +31,62 @@ class M:
         return Links
 
 
+    # --- children/get_direct_page_children ---
+    @property
+    def GetDirectPageChildrenRequest(self):
+        from .children.get_direct_page_children import GetDirectPageChildrenRequest
+
+        return GetDirectPageChildrenRequest
+
+    @property
+    def GetDirectPageChildrenResponse(self):
+        from .children.get_direct_page_children import GetDirectPageChildrenResponse
+
+        return GetDirectPageChildrenResponse
+
+
+    # --- children/get_folder_direct_children ---
+    @property
+    def GetFolderDirectChildrenRequest(self):
+        from .children.get_folder_direct_children import GetFolderDirectChildrenRequest
+
+        return GetFolderDirectChildrenRequest
+
+    @property
+    def GetFolderDirectChildrenResponse(self):
+        from .children.get_folder_direct_children import GetFolderDirectChildrenResponse
+
+        return GetFolderDirectChildrenResponse
+
+
+    # --- descendant/get_folder_descendants ---
+    @property
+    def GetFolderDescendantsRequest(self):
+        from .descendant.get_folder_descendants import GetFolderDescendantsRequest
+
+        return GetFolderDescendantsRequest
+
+    @property
+    def GetFolderDescendantsResponse(self):
+        from .descendant.get_folder_descendants import GetFolderDescendantsResponse
+
+        return GetFolderDescendantsResponse
+
+
+    # --- descendant/get_page_descendants ---
+    @property
+    def GetPageDescendantsRequest(self):
+        from .descendant.get_page_descendants import GetPageDescendantsRequest
+
+        return GetPageDescendantsRequest
+
+    @property
+    def GetPageDescendantsResponse(self):
+        from .descendant.get_page_descendants import GetPageDescendantsResponse
+
+        return GetPageDescendantsResponse
+
+
     # --- folder/create_folder ---
     @property
     def CreateFolderRequest(self):
