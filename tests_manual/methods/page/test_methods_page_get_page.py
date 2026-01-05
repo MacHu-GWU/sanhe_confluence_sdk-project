@@ -10,7 +10,7 @@ from sanhe_confluence_sdk.tests import client, debug_prop, PAGE_ID
 
 
 def test(
-    # mute,
+    mute
 ):
     # Get the single page
     res = GetPageRequest(
