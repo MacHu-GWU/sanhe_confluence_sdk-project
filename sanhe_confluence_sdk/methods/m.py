@@ -31,6 +31,48 @@ class M:
         return Links
 
 
+    # --- folder/create_folder ---
+    @property
+    def CreateFolderRequest(self):
+        from .folder.create_folder import CreateFolderRequest
+
+        return CreateFolderRequest
+
+    @property
+    def CreateFolderResponse(self):
+        from .folder.create_folder import CreateFolderResponse
+
+        return CreateFolderResponse
+
+
+    # --- folder/delete_folder ---
+    @property
+    def DeleteFolderRequest(self):
+        from .folder.delete_folder import DeleteFolderRequest
+
+        return DeleteFolderRequest
+
+    @property
+    def DeleteFolderResponse(self):
+        from .folder.delete_folder import DeleteFolderResponse
+
+        return DeleteFolderResponse
+
+
+    # --- folder/get_folder ---
+    @property
+    def GetFolderRequest(self):
+        from .folder.get_folder import GetFolderRequest
+
+        return GetFolderRequest
+
+    @property
+    def GetFolderResponse(self):
+        from .folder.get_folder import GetFolderResponse
+
+        return GetFolderResponse
+
+
     # --- label/get_labels ---
     @property
     def GetLabelsRequest(self):
