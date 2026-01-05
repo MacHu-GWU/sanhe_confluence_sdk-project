@@ -16,7 +16,7 @@ from sanhe_confluence_sdk.tests import client, debug_prop, FOLDER_ID
 
 
 def test(
-    # mute,  # on separate line for easy comment in/out
+    mute,  # on separate line for easy comment in/out
 ):
     res = GetFolderDescendantsRequest(
         path_params=GetFolderDescendantsRequestPathParams(id=int(FOLDER_ID)),
