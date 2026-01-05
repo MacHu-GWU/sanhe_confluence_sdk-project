@@ -43,7 +43,28 @@ class M:
         from {{ method.import_path }} import {{ method.response_class }}
 
         return {{ method.response_class }}
+{% if method.path_params_class %}
 
+    @property
+    def {{ method.path_params_class }}(self):
+        from {{ method.import_path }} import {{ method.path_params_class }}
+
+        return {{ method.path_params_class }}
+{% endif %}{% if method.query_params_class %}
+
+    @property
+    def {{ method.query_params_class }}(self):
+        from {{ method.import_path }} import {{ method.query_params_class }}
+
+        return {{ method.query_params_class }}
+{% endif %}{% if method.body_params_class %}
+
+    @property
+    def {{ method.body_params_class }}(self):
+        from {{ method.import_path }} import {{ method.body_params_class }}
+
+        return {{ method.body_params_class }}
+{% endif %}
 {% endfor %}
 
 m = M()

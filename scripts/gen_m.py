@@ -34,7 +34,7 @@ def snake_to_pascal(name: str) -> str:
     return "".join(word.capitalize() for word in name.split("_"))
 
 
-def discover_methods() -> T.List[T.Dict[str, str]]:
+def discover_methods() -> T.List[T.Dict[str, T.Any]]:
     """
     Discover all Request/Response classes in the methods directory.
 
@@ -45,7 +45,12 @@ def discover_methods() -> T.List[T.Dict[str, str]]:
     - request_class: full class name (e.g., "GetSpacesRequest")
     - response_class: full class name (e.g., "GetSpacesResponse")
     - import_path: relative import path (e.g., ".space.get_spaces")
+    - path_params_class: full class name or None (e.g., "GetSpacesRequestPathParams")
+    - query_params_class: full class name or None (e.g., "GetSpacesRequestQueryParams")
+    - body_params_class: full class name or None (e.g., "GetSpacesRequestBodyParams")
     """
+    import importlib
+
     methods = []
 
     for subdir in sorted(dir_methods.iterdir()):
@@ -61,6 +66,18 @@ def discover_methods() -> T.List[T.Dict[str, str]]:
             module_name = py_file.stem  # e.g., "get_spaces"
             class_prefix = snake_to_pascal(module_name)  # e.g., "GetSpaces"
 
+            # Check for parameter classes by importing the module
+            module_path = f"sanhe_confluence_sdk.methods.{subdir.name}.{module_name}"
+            try:
+                mod = importlib.import_module(module_path)
+            except ImportError:
+                mod = None
+
+            # Determine which parameter classes exist
+            path_params_class = f"{class_prefix}RequestPathParams"
+            query_params_class = f"{class_prefix}RequestQueryParams"
+            body_params_class = f"{class_prefix}RequestBodyParams"
+
             methods.append(
                 {
                     "subdir": subdir.name,
@@ -69,13 +86,16 @@ def discover_methods() -> T.List[T.Dict[str, str]]:
                     "request_class": f"{class_prefix}Request",
                     "response_class": f"{class_prefix}Response",
                     "import_path": f".{subdir.name}.{module_name}",
+                    "path_params_class": path_params_class if mod and hasattr(mod, path_params_class) else None,
+                    "query_params_class": query_params_class if mod and hasattr(mod, query_params_class) else None,
+                    "body_params_class": body_params_class if mod and hasattr(mod, body_params_class) else None,
                 }
             )
 
     return methods
 
 
-def validate_classes(methods: T.List[T.Dict[str, str]]) -> None:
+def validate_classes(methods: T.List[T.Dict[str, T.Any]]) -> None:
     """
     Validate that all discovered Request/Response classes actually exist.
 
@@ -93,8 +113,15 @@ def validate_classes(methods: T.List[T.Dict[str, str]]) -> None:
             errors.append(f"Cannot import module {module_path}: {e}")
             continue
 
+        # Validate required classes (Request and Response)
         for class_name in [method["request_class"], method["response_class"]]:
             if not hasattr(mod, class_name):
+                errors.append(f"Class {class_name} not found in {module_path}")
+
+        # Validate optional parameter classes (only if they were discovered)
+        for param_key in ["path_params_class", "query_params_class", "body_params_class"]:
+            class_name = method.get(param_key)
+            if class_name and not hasattr(mod, class_name):
                 errors.append(f"Class {class_name} not found in {module_path}")
 
     if errors:
@@ -126,7 +153,12 @@ def main():
     methods = discover_methods()
     print(f"Found {len(methods)} methods:")
     for method in methods:
-        print(f"  - {method['subdir']}/{method['module']}: {method['request_class']}, {method['response_class']}")
+        classes = [method['request_class'], method['response_class']]
+        # Add parameter classes if they exist
+        for param_key in ["path_params_class", "query_params_class", "body_params_class"]:
+            if method.get(param_key):
+                classes.append(method[param_key])
+        print(f"  - {method['subdir']}/{method['module']}: {', '.join(classes)}")
 
     print("\nValidating classes...")
     validate_classes(methods)

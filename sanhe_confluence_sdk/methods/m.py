@@ -12,6 +12,7 @@ Usage::
     m.GetSpacesResponse
 """
 
+
 # ------------------------------------------------------------------------------
 # Auto-generated Request/Response classes
 # ------------------------------------------------------------------------------
@@ -30,7 +31,6 @@ class M:
 
         return Links
 
-
     # --- children/get_direct_page_children ---
     @property
     def GetDirectPageChildrenRequest(self):
@@ -44,6 +44,21 @@ class M:
 
         return GetDirectPageChildrenResponse
 
+    @property
+    def GetDirectPageChildrenRequestPathParams(self):
+        from .children.get_direct_page_children import (
+            GetDirectPageChildrenRequestPathParams,
+        )
+
+        return GetDirectPageChildrenRequestPathParams
+
+    @property
+    def GetDirectPageChildrenRequestQueryParams(self):
+        from .children.get_direct_page_children import (
+            GetDirectPageChildrenRequestQueryParams,
+        )
+
+        return GetDirectPageChildrenRequestQueryParams
 
     # --- children/get_folder_direct_children ---
     @property
@@ -58,6 +73,21 @@ class M:
 
         return GetFolderDirectChildrenResponse
 
+    @property
+    def GetFolderDirectChildrenRequestPathParams(self):
+        from .children.get_folder_direct_children import (
+            GetFolderDirectChildrenRequestPathParams,
+        )
+
+        return GetFolderDirectChildrenRequestPathParams
+
+    @property
+    def GetFolderDirectChildrenRequestQueryParams(self):
+        from .children.get_folder_direct_children import (
+            GetFolderDirectChildrenRequestQueryParams,
+        )
+
+        return GetFolderDirectChildrenRequestQueryParams
 
     # --- descendant/get_folder_descendants ---
     @property
@@ -72,6 +102,21 @@ class M:
 
         return GetFolderDescendantsResponse
 
+    @property
+    def GetFolderDescendantsRequestPathParams(self):
+        from .descendant.get_folder_descendants import (
+            GetFolderDescendantsRequestPathParams,
+        )
+
+        return GetFolderDescendantsRequestPathParams
+
+    @property
+    def GetFolderDescendantsRequestQueryParams(self):
+        from .descendant.get_folder_descendants import (
+            GetFolderDescendantsRequestQueryParams,
+        )
+
+        return GetFolderDescendantsRequestQueryParams
 
     # --- descendant/get_page_descendants ---
     @property
@@ -86,6 +131,19 @@ class M:
 
         return GetPageDescendantsResponse
 
+    @property
+    def GetPageDescendantsRequestPathParams(self):
+        from .descendant.get_page_descendants import GetPageDescendantsRequestPathParams
+
+        return GetPageDescendantsRequestPathParams
+
+    @property
+    def GetPageDescendantsRequestQueryParams(self):
+        from .descendant.get_page_descendants import (
+            GetPageDescendantsRequestQueryParams,
+        )
+
+        return GetPageDescendantsRequestQueryParams
 
     # --- folder/create_folder ---
     @property
@@ -100,6 +158,11 @@ class M:
 
         return CreateFolderResponse
 
+    @property
+    def CreateFolderRequestBodyParams(self):
+        from .folder.create_folder import CreateFolderRequestBodyParams
+
+        return CreateFolderRequestBodyParams
 
     # --- folder/delete_folder ---
     @property
@@ -114,6 +177,11 @@ class M:
 
         return DeleteFolderResponse
 
+    @property
+    def DeleteFolderRequestPathParams(self):
+        from .folder.delete_folder import DeleteFolderRequestPathParams
+
+        return DeleteFolderRequestPathParams
 
     # --- folder/get_folder ---
     @property
@@ -128,6 +196,17 @@ class M:
 
         return GetFolderResponse
 
+    @property
+    def GetFolderRequestPathParams(self):
+        from .folder.get_folder import GetFolderRequestPathParams
+
+        return GetFolderRequestPathParams
+
+    @property
+    def GetFolderRequestQueryParams(self):
+        from .folder.get_folder import GetFolderRequestQueryParams
+
+        return GetFolderRequestQueryParams
 
     # --- label/get_labels ---
     @property
@@ -142,6 +221,11 @@ class M:
 
         return GetLabelsResponse
 
+    @property
+    def GetLabelsRequestQueryParams(self):
+        from .label.get_labels import GetLabelsRequestQueryParams
+
+        return GetLabelsRequestQueryParams
 
     # --- label/get_labels_for_page ---
     @property
@@ -156,6 +240,17 @@ class M:
 
         return GetLabelsForPageResponse
 
+    @property
+    def GetLabelsForPageRequestPathParams(self):
+        from .label.get_labels_for_page import GetLabelsForPageRequestPathParams
+
+        return GetLabelsForPageRequestPathParams
+
+    @property
+    def GetLabelsForPageRequestQueryParams(self):
+        from .label.get_labels_for_page import GetLabelsForPageRequestQueryParams
+
+        return GetLabelsForPageRequestQueryParams
 
     # --- label/get_labels_for_space ---
     @property
@@ -170,6 +265,17 @@ class M:
 
         return GetLabelsForSpaceResponse
 
+    @property
+    def GetLabelsForSpaceRequestPathParams(self):
+        from .label.get_labels_for_space import GetLabelsForSpaceRequestPathParams
+
+        return GetLabelsForSpaceRequestPathParams
+
+    @property
+    def GetLabelsForSpaceRequestQueryParams(self):
+        from .label.get_labels_for_space import GetLabelsForSpaceRequestQueryParams
+
+        return GetLabelsForSpaceRequestQueryParams
 
     # --- page/create_page ---
     @property
@@ -184,6 +290,17 @@ class M:
 
         return CreatePageResponse
 
+    @property
+    def CreatePageRequestQueryParams(self):
+        from .page.create_page import CreatePageRequestQueryParams
+
+        return CreatePageRequestQueryParams
+
+    @property
+    def CreatePageRequestBodyParams(self):
+        from .page.create_page import CreatePageRequestBodyParams
+
+        return CreatePageRequestBodyParams
 
     # --- page/delete_page ---
     @property
@@ -198,6 +315,17 @@ class M:
 
         return DeletePageResponse
 
+    @property
+    def DeletePageRequestPathParams(self):
+        from .page.delete_page import DeletePageRequestPathParams
+
+        return DeletePageRequestPathParams
+
+    @property
+    def DeletePageRequestQueryParams(self):
+        from .page.delete_page import DeletePageRequestQueryParams
+
+        return DeletePageRequestQueryParams
 
     # --- page/get_page ---
     @property
@@ -212,6 +340,17 @@ class M:
 
         return GetPageResponse
 
+    @property
+    def GetPageRequestPathParams(self):
+        from .page.get_page import GetPageRequestPathParams
+
+        return GetPageRequestPathParams
+
+    @property
+    def GetPageRequestQueryParams(self):
+        from .page.get_page import GetPageRequestQueryParams
+
+        return GetPageRequestQueryParams
 
     # --- page/get_pages ---
     @property
@@ -226,6 +365,11 @@ class M:
 
         return GetPagesResponse
 
+    @property
+    def GetPagesRequestQueryParams(self):
+        from .page.get_pages import GetPagesRequestQueryParams
+
+        return GetPagesRequestQueryParams
 
     # --- page/get_pages_for_label ---
     @property
@@ -240,6 +384,17 @@ class M:
 
         return GetPagesForLabelResponse
 
+    @property
+    def GetPagesForLabelRequestPathParams(self):
+        from .page.get_pages_for_label import GetPagesForLabelRequestPathParams
+
+        return GetPagesForLabelRequestPathParams
+
+    @property
+    def GetPagesForLabelRequestQueryParams(self):
+        from .page.get_pages_for_label import GetPagesForLabelRequestQueryParams
+
+        return GetPagesForLabelRequestQueryParams
 
     # --- page/get_pages_in_space ---
     @property
@@ -254,6 +409,17 @@ class M:
 
         return GetPagesInSpaceResponse
 
+    @property
+    def GetPagesInSpaceRequestPathParams(self):
+        from .page.get_pages_in_space import GetPagesInSpaceRequestPathParams
+
+        return GetPagesInSpaceRequestPathParams
+
+    @property
+    def GetPagesInSpaceRequestQueryParams(self):
+        from .page.get_pages_in_space import GetPagesInSpaceRequestQueryParams
+
+        return GetPagesInSpaceRequestQueryParams
 
     # --- page/update_page ---
     @property
@@ -268,6 +434,17 @@ class M:
 
         return UpdatePageResponse
 
+    @property
+    def UpdatePageRequestPathParams(self):
+        from .page.update_page import UpdatePageRequestPathParams
+
+        return UpdatePageRequestPathParams
+
+    @property
+    def UpdatePageRequestBodyParams(self):
+        from .page.update_page import UpdatePageRequestBodyParams
+
+        return UpdatePageRequestBodyParams
 
     # --- page/update_page_title ---
     @property
@@ -282,6 +459,17 @@ class M:
 
         return UpdatePageTitleResponse
 
+    @property
+    def UpdatePageTitleRequestPathParams(self):
+        from .page.update_page_title import UpdatePageTitleRequestPathParams
+
+        return UpdatePageTitleRequestPathParams
+
+    @property
+    def UpdatePageTitleRequestBodyParams(self):
+        from .page.update_page_title import UpdatePageTitleRequestBodyParams
+
+        return UpdatePageTitleRequestBodyParams
 
     # --- space/create_space ---
     @property
@@ -296,6 +484,11 @@ class M:
 
         return CreateSpaceResponse
 
+    @property
+    def CreateSpaceRequestBodyParams(self):
+        from .space.create_space import CreateSpaceRequestBodyParams
+
+        return CreateSpaceRequestBodyParams
 
     # --- space/get_space ---
     @property
@@ -310,6 +503,17 @@ class M:
 
         return GetSpaceResponse
 
+    @property
+    def GetSpaceRequestPathParams(self):
+        from .space.get_space import GetSpaceRequestPathParams
+
+        return GetSpaceRequestPathParams
+
+    @property
+    def GetSpaceRequestQueryParams(self):
+        from .space.get_space import GetSpaceRequestQueryParams
+
+        return GetSpaceRequestQueryParams
 
     # --- space/get_spaces ---
     @property
@@ -324,6 +528,11 @@ class M:
 
         return GetSpacesResponse
 
+    @property
+    def GetSpacesRequestQueryParams(self):
+        from .space.get_spaces import GetSpacesRequestQueryParams
+
+        return GetSpacesRequestQueryParams
 
 
 m = M()
