@@ -15,6 +15,13 @@ x.y.z (Backlog)
 **Miscellaneous**
 
 
+0.1.3 (2026-01-05)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Minor Improvements**
+
+- Enhanced ``m`` module to expose all ``BaseModel`` subclasses, including nested response classes (e.g., ``GetSpaceResponseDescription``, ``GetPageResponseBody``). Previously only exposed Request/Response and parameter classes.
+
+
 0.1.2 (2026-01-05)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
