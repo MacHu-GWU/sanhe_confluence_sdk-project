@@ -64,6 +64,13 @@ class M:
         from {{ method.import_path }} import {{ method.body_params_class }}
 
         return {{ method.body_params_class }}
+{% endif %}{% if method.response_result_class %}
+
+    @property
+    def {{ method.response_result_class }}(self):
+        from {{ method.import_path }} import {{ method.response_result_class }}
+
+        return {{ method.response_result_class }}
 {% endif %}
 {% endfor %}
 

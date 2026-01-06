@@ -60,6 +60,14 @@ class M:
 
         return GetDirectPageChildrenRequestQueryParams
 
+    @property
+    def GetDirectPageChildrenResponseResult(self):
+        from .children.get_direct_page_children import (
+            GetDirectPageChildrenResponseResult,
+        )
+
+        return GetDirectPageChildrenResponseResult
+
     # --- children/get_folder_direct_children ---
     @property
     def GetFolderDirectChildrenRequest(self):
@@ -88,6 +96,14 @@ class M:
         )
 
         return GetFolderDirectChildrenRequestQueryParams
+
+    @property
+    def GetFolderDirectChildrenResponseResult(self):
+        from .children.get_folder_direct_children import (
+            GetFolderDirectChildrenResponseResult,
+        )
+
+        return GetFolderDirectChildrenResponseResult
 
     # --- descendant/get_folder_descendants ---
     @property
@@ -118,6 +134,14 @@ class M:
 
         return GetFolderDescendantsRequestQueryParams
 
+    @property
+    def GetFolderDescendantsResponseResult(self):
+        from .descendant.get_folder_descendants import (
+            GetFolderDescendantsResponseResult,
+        )
+
+        return GetFolderDescendantsResponseResult
+
     # --- descendant/get_page_descendants ---
     @property
     def GetPageDescendantsRequest(self):
@@ -144,6 +168,12 @@ class M:
         )
 
         return GetPageDescendantsRequestQueryParams
+
+    @property
+    def GetPageDescendantsResponseResult(self):
+        from .descendant.get_page_descendants import GetPageDescendantsResponseResult
+
+        return GetPageDescendantsResponseResult
 
     # --- folder/create_folder ---
     @property
@@ -227,6 +257,12 @@ class M:
 
         return GetLabelsRequestQueryParams
 
+    @property
+    def GetLabelsResponseResult(self):
+        from .label.get_labels import GetLabelsResponseResult
+
+        return GetLabelsResponseResult
+
     # --- label/get_labels_for_page ---
     @property
     def GetLabelsForPageRequest(self):
@@ -252,6 +288,12 @@ class M:
 
         return GetLabelsForPageRequestQueryParams
 
+    @property
+    def GetLabelsForPageResponseResult(self):
+        from .label.get_labels_for_page import GetLabelsForPageResponseResult
+
+        return GetLabelsForPageResponseResult
+
     # --- label/get_labels_for_space ---
     @property
     def GetLabelsForSpaceRequest(self):
@@ -276,6 +318,12 @@ class M:
         from .label.get_labels_for_space import GetLabelsForSpaceRequestQueryParams
 
         return GetLabelsForSpaceRequestQueryParams
+
+    @property
+    def GetLabelsForSpaceResponseResult(self):
+        from .label.get_labels_for_space import GetLabelsForSpaceResponseResult
+
+        return GetLabelsForSpaceResponseResult
 
     # --- page/create_page ---
     @property
@@ -371,6 +419,12 @@ class M:
 
         return GetPagesRequestQueryParams
 
+    @property
+    def GetPagesResponseResult(self):
+        from .page.get_pages import GetPagesResponseResult
+
+        return GetPagesResponseResult
+
     # --- page/get_pages_for_label ---
     @property
     def GetPagesForLabelRequest(self):
@@ -396,6 +450,12 @@ class M:
 
         return GetPagesForLabelRequestQueryParams
 
+    @property
+    def GetPagesForLabelResponseResult(self):
+        from .page.get_pages_for_label import GetPagesForLabelResponseResult
+
+        return GetPagesForLabelResponseResult
+
     # --- page/get_pages_in_space ---
     @property
     def GetPagesInSpaceRequest(self):
@@ -420,6 +480,12 @@ class M:
         from .page.get_pages_in_space import GetPagesInSpaceRequestQueryParams
 
         return GetPagesInSpaceRequestQueryParams
+
+    @property
+    def GetPagesInSpaceResponseResult(self):
+        from .page.get_pages_in_space import GetPagesInSpaceResponseResult
+
+        return GetPagesInSpaceResponseResult
 
     # --- page/update_page ---
     @property
@@ -533,6 +599,12 @@ class M:
         from .space.get_spaces import GetSpacesRequestQueryParams
 
         return GetSpacesRequestQueryParams
+
+    @property
+    def GetSpacesResponseResult(self):
+        from .space.get_spaces import GetSpacesResponseResult
+
+        return GetSpacesResponseResult
 
 
 m = M()

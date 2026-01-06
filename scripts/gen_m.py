@@ -48,6 +48,7 @@ def discover_methods() -> T.List[T.Dict[str, T.Any]]:
     - path_params_class: full class name or None (e.g., "GetSpacesRequestPathParams")
     - query_params_class: full class name or None (e.g., "GetSpacesRequestQueryParams")
     - body_params_class: full class name or None (e.g., "GetSpacesRequestBodyParams")
+    - response_result_class: full class name or None (e.g., "GetSpacesResponseResult")
     """
     import importlib
 
@@ -77,6 +78,7 @@ def discover_methods() -> T.List[T.Dict[str, T.Any]]:
             path_params_class = f"{class_prefix}RequestPathParams"
             query_params_class = f"{class_prefix}RequestQueryParams"
             body_params_class = f"{class_prefix}RequestBodyParams"
+            response_result_class = f"{class_prefix}ResponseResult"
 
             methods.append(
                 {
@@ -89,6 +91,7 @@ def discover_methods() -> T.List[T.Dict[str, T.Any]]:
                     "path_params_class": path_params_class if mod and hasattr(mod, path_params_class) else None,
                     "query_params_class": query_params_class if mod and hasattr(mod, query_params_class) else None,
                     "body_params_class": body_params_class if mod and hasattr(mod, body_params_class) else None,
+                    "response_result_class": response_result_class if mod and hasattr(mod, response_result_class) else None,
                 }
             )
 
@@ -119,7 +122,7 @@ def validate_classes(methods: T.List[T.Dict[str, T.Any]]) -> None:
                 errors.append(f"Class {class_name} not found in {module_path}")
 
         # Validate optional parameter classes (only if they were discovered)
-        for param_key in ["path_params_class", "query_params_class", "body_params_class"]:
+        for param_key in ["path_params_class", "query_params_class", "body_params_class", "response_result_class"]:
             class_name = method.get(param_key)
             if class_name and not hasattr(mod, class_name):
                 errors.append(f"Class {class_name} not found in {module_path}")
@@ -155,7 +158,7 @@ def main():
     for method in methods:
         classes = [method['request_class'], method['response_class']]
         # Add parameter classes if they exist
-        for param_key in ["path_params_class", "query_params_class", "body_params_class"]:
+        for param_key in ["path_params_class", "query_params_class", "body_params_class", "response_result_class"]:
             if method.get(param_key):
                 classes.append(method[param_key])
         print(f"  - {method['subdir']}/{method['module']}: {', '.join(classes)}")
